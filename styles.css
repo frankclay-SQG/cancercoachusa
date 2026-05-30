@@ -362,13 +362,14 @@ h3 {
 
 .resource-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 14px;
 }
 
 .resource-list a {
   display: grid;
-  min-height: 170px;
+  gap: 14px;
+  min-height: 220px;
   padding: 22px;
   background: rgba(255, 255, 255, 0.74);
   border: 1px solid rgba(85, 91, 96, 0.16);
@@ -384,10 +385,15 @@ h3 {
 }
 
 .resource-list strong {
-  align-self: end;
   color: var(--charcoal);
   font-size: 1.28rem;
   line-height: 1.18;
+}
+
+.resource-list p {
+  margin-bottom: 0;
+  color: var(--graphite);
+  font-size: 0.95rem;
 }
 
 .page-hero {
