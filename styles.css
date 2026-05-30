@@ -409,7 +409,7 @@ h3 {
   width: min(54vw, 620px);
   aspect-ratio: 1;
   content: "";
-  background: url("assets/grey-brain-cancer-ribbon.png") center / contain no-repeat;
+  background: url("assets/grey-cancer-ribbon.png") center / contain no-repeat;
   opacity: 0.16;
   pointer-events: none;
 }
