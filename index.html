@@ -240,8 +240,8 @@
           <p class="eyebrow">Contact</p>
           <h2>Start with what comes next.</h2>
           <p>
-            Share a few details and the form will prepare a message you can send from
-            your email app. Please do not include urgent medical details in this form.
+            Share a few details and the form will send your request to Cancer
+            Coach USA. Please do not include urgent medical details in this form.
           </p>
           <p class="fine-print">
             Cancer Coach USA does not replace medical care. For emergencies, call 911 or
@@ -249,17 +249,18 @@
           </p>
         </div>
         <form class="contact-form" id="contact-form">
+          <p class="required-note"><span aria-hidden="true">*</span> Required field</p>
           <label>
-            Name
+            <span class="field-label" style="display: inline">Name <span class="required-marker" aria-hidden="true" style="display: inline; color: #b42318; line-height: 1; vertical-align: baseline">*</span></span>
             <input name="name" type="text" autocomplete="name" required>
           </label>
           <label>
-            Email
+            <span class="field-label" style="display: inline">Email <span class="required-marker" aria-hidden="true" style="display: inline; color: #b42318; line-height: 1; vertical-align: baseline">*</span></span>
             <input name="email" type="email" autocomplete="email" required>
           </label>
           <label>
-            Mobile phone
-            <input name="phone" type="tel" autocomplete="tel" placeholder="+1 555 123 4567">
+            <span class="field-label" style="display: inline">Mobile phone <span class="required-marker" aria-hidden="true" style="display: inline; color: #b42318; line-height: 1; vertical-align: baseline">*</span></span>
+            <input name="phone" type="tel" autocomplete="tel" placeholder="+1 555 123 4567" required>
           </label>
           <label>
             I am
@@ -284,8 +285,8 @@
             </select>
           </label>
           <label>
-            Preferred contact method
-            <select name="preferred_channel">
+            <span class="field-label" style="display: inline">Preferred contact method <span class="required-marker" aria-hidden="true" style="display: inline; color: #b42318; line-height: 1; vertical-align: baseline">*</span></span>
+            <select name="preferred_channel" required>
               <option value="">Choose one</option>
               <option>Email</option>
               <option>SMS</option>
@@ -293,7 +294,7 @@
             </select>
           </label>
           <label>
-            What kind of support would help most?
+            <span class="field-label" style="display: inline">What kind of support would help most? <span class="required-marker" aria-hidden="true" style="display: inline; color: #b42318; line-height: 1; vertical-align: baseline">*</span></span>
             <textarea name="message" rows="5" required></textarea>
           </label>
           <label class="check-label">
@@ -304,7 +305,7 @@
             <input name="sms_opt_in" type="checkbox">
             <span>I agree to receive text messages from Cancer Coach USA. Message and data rates may apply. Reply STOP to opt out.</span>
           </label>
-          <button class="button button-primary" type="submit">Send Request</button>
+          <button class="button button-primary" type="submit">Submit Intake</button>
           <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
         </form>
       </section>

@@ -15,8 +15,8 @@ form?.addEventListener("submit", (event) => {
   const smsOptIn = formData.get("sms_opt_in") === "on";
   const message = String(formData.get("message") || "").trim();
 
-  if (!name || !email || !role || !message) {
-    statusMessage.textContent = "Please complete each field before preparing the email.";
+  if (!name || !email || !phone || !role || !preferredChannel || !message) {
+    statusMessage.textContent = "Please complete all required fields before submitting.";
     return;
   }
 
@@ -25,7 +25,7 @@ form?.addEventListener("submit", (event) => {
     "I agree to receive text messages from Cancer Coach USA. Message and data rates may apply. Reply STOP to opt out.",
   ].join(" ");
 
-  statusMessage.textContent = "Sending your request.";
+  statusMessage.textContent = "Sending your request to Cancer Coach USA.";
 
   fetch("/api/contact", {
     method: "POST",

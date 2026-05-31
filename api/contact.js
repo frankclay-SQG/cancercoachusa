@@ -23,6 +23,31 @@ function addOptional(properties, envKey, value) {
   }
 }
 
+function intakeNoteBody(payload) {
+  const lines = [
+    "Cancer Coach USA website intake",
+    "",
+    `Submitted: ${payload.submittedAt}`,
+    `Name: ${payload.name}`,
+    `Email: ${payload.email}`,
+    `Mobile phone: ${payload.phone || "Not provided"}`,
+    `Role: ${payload.role || "Not provided"}`,
+    `Primary interest: ${payload.pillar || "Not provided"}`,
+    `Preferred contact method: ${payload.preferredChannel || "Not provided"}`,
+    `Email opt-in: ${payload.emailOptIn ? "Yes" : "No"}`,
+    `SMS opt-in: ${payload.smsOptIn ? "Yes" : "No"}`,
+    `Source page: ${payload.pageUrl || "Not provided"}`,
+    "",
+    "Consent text:",
+    payload.consentText || "Not provided",
+    "",
+    "Requested support:",
+    payload.message,
+  ];
+
+  return lines.join("\n");
+}
+
 async function hubspotRequest(path, options = {}) {
   const token = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
   if (!token) {
@@ -74,6 +99,24 @@ async function findContactByEmail(email) {
   return body.results?.[0];
 }
 
+async function createIntakeNote(contactId, payload) {
+  const note = await hubspotRequest("/crm/v3/objects/notes", {
+    method: "POST",
+    body: JSON.stringify({
+      properties: {
+        hs_timestamp: payload.submittedAt,
+        hs_note_body: intakeNoteBody(payload),
+      },
+    }),
+  });
+
+  await hubspotRequest(`/crm/v4/objects/notes/${note.id}/associations/default/contacts/${contactId}`, {
+    method: "PUT",
+  });
+
+  return note;
+}
+
 module.exports = async function handler(request, response) {
   if (request.method !== "POST") {
     sendJson(response, 405, { error: "Method not allowed" });
@@ -96,8 +139,10 @@ module.exports = async function handler(request, response) {
       consentText,
     } = payload || {};
 
-    if (!name || !email || !message) {
-      sendJson(response, 400, { error: "Name, email, and message are required." });
+    if (!name || !email || !phone || !preferredChannel || !message) {
+      sendJson(response, 400, {
+        error: "Name, email, mobile phone, preferred contact method, and message are required.",
+      });
       return;
     }
 
@@ -136,9 +181,25 @@ module.exports = async function handler(request, response) {
           body: JSON.stringify({ properties }),
         });
 
+    const note = await createIntakeNote(contact.id, {
+      name,
+      email,
+      phone,
+      role,
+      pillar,
+      preferredChannel,
+      emailOptIn,
+      smsOptIn,
+      message,
+      pageUrl,
+      consentText,
+      submittedAt,
+    });
+
     sendJson(response, 200, {
       ok: true,
       contactId: contact.id,
+      noteId: note.id,
       updated: Boolean(existing),
     });
   } catch (error) {

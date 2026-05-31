@@ -34,7 +34,11 @@ Optional HubSpot custom property mapping:
 - `HUBSPOT_SOURCE_PAGE_PROPERTY`
 - `HUBSPOT_CONSENT_TEXT_PROPERTY`
 
-If the optional HubSpot custom property names are not set, the API route will still create or update the contact using standard HubSpot properties: `email`, `firstname`, `lastname`, `phone`, and `mobilephone`.
+If the optional HubSpot custom property names are not set, the API route will
+still create or update the contact using standard HubSpot properties: `email`,
+`firstname`, `lastname`, `phone`, and `mobilephone`. Every successful intake
+also creates a HubSpot note associated with the contact so the full form details,
+consent choices, source page, and message are preserved for follow-up.
 
 ## Controlled Blog Admin
 
