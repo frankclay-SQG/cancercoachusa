@@ -2,7 +2,8 @@
 
 Add the schema types in `sanity/schemaTypes` to your Sanity Studio project.
 
-The website expects these document types:
+The website is oriented around cancer survivorship after active treatment and
+expects these document types:
 
 - `post`: blog articles with Portable Text rich text, uploaded images, and downloadable files.
 - `author`: optional author records for blog posts.

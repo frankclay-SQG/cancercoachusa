@@ -42,7 +42,7 @@ function renderSchedule(slots) {
           ${daySlots
             .map((slot) => `
               <article class="schedule-slot">
-                <span>${escapeHtml(slot.meetingType || "Consultation")}</span>
+                <span>${escapeHtml(slot.meetingType || "Survivorship conversation")}</span>
                 <strong>${escapeHtml(slot.title || "Available meeting")}</strong>
                 <p>${escapeHtml(formatTimeRange(slot.start, slot.end))}</p>
                 ${slot.description ? `<p>${escapeHtml(slot.description)}</p>` : ""}

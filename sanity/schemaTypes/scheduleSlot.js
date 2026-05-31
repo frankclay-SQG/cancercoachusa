@@ -7,7 +7,7 @@ export default {
       name: "title",
       title: "Title",
       type: "string",
-      initialValue: "Cancer Coach conversation",
+      initialValue: "Survivorship conversation",
       validation: (Rule) => Rule.required(),
     },
     {
@@ -26,7 +26,7 @@ export default {
       title: "Meeting type",
       type: "string",
       options: {
-        list: ["Intro Call", "Patient Coaching", "Caregiver Coaching", "Resource Review"],
+        list: ["Intro Call", "Survivorship Coaching", "Caregiver Transition", "Resource Review"],
       },
     },
     {

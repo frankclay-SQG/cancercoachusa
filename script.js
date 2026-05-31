@@ -53,6 +53,6 @@ form?.addEventListener("submit", (event) => {
       statusMessage.textContent = "Thank you. Your request has been received.";
     })
     .catch((error) => {
-      statusMessage.textContent = `${error.message} Please email hello@cancercoachusa.org if this continues.`;
+      statusMessage.textContent = `${error.message} Please email support@cancercoachusa.com if this continues.`;
     });
 });
