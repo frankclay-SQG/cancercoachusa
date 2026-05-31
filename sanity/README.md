@@ -1,0 +1,34 @@
+# Sanity Setup
+
+Add the schema types in `sanity/schemaTypes` to your Sanity Studio project.
+
+The website expects these document types:
+
+- `post`: blog articles with Portable Text rich text, uploaded images, and downloadable files.
+- `author`: optional author records for blog posts.
+- `scheduleSlot`: Sanity-managed calendar openings with optional booking URLs.
+
+Required Vercel environment variables:
+
+- `SANITY_PROJECT_ID`
+- `SANITY_DATASET`
+
+Optional Vercel environment variables:
+
+- `SANITY_READ_TOKEN` or `SANITY_API_READ_TOKEN` if the dataset is private or if draft/preview access is needed.
+- `HUBSPOT_PRIVATE_APP_TOKEN` for contact form submission.
+
+Optional HubSpot custom property mapping:
+
+- `HUBSPOT_CONTACT_ROLE_PROPERTY`
+- `HUBSPOT_CONTACT_PILLAR_PROPERTY`
+- `HUBSPOT_CONTACT_CHANNEL_PROPERTY`
+- `HUBSPOT_CONTACT_MESSAGE_PROPERTY`
+- `HUBSPOT_EMAIL_OPT_IN_PROPERTY`
+- `HUBSPOT_SMS_OPT_IN_PROPERTY`
+- `HUBSPOT_CONSENT_SOURCE_PROPERTY`
+- `HUBSPOT_CONSENT_TIMESTAMP_PROPERTY`
+- `HUBSPOT_SOURCE_PAGE_PROPERTY`
+- `HUBSPOT_CONSENT_TEXT_PROPERTY`
+
+If the optional HubSpot custom property names are not set, the API route will still create or update the contact using standard HubSpot properties: `email`, `firstname`, `lastname`, `phone`, and `mobilephone`.

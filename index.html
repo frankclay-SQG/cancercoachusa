@@ -26,6 +26,8 @@
         <a href="index.html#support">Support</a>
         <a href="index.html#pathway">Pathway</a>
         <a href="pillars.html">Five Pillars</a>
+        <a href="blog.html">Blog</a>
+        <a href="schedule.html">Schedule</a>
         <a href="index.html#resources">Resources</a>
         <a href="index.html#contact">Contact</a>
       </nav>
@@ -201,6 +203,10 @@
             <input name="email" type="email" autocomplete="email" required>
           </label>
           <label>
+            Mobile phone
+            <input name="phone" type="tel" autocomplete="tel" placeholder="+1 555 123 4567">
+          </label>
+          <label>
             I am
             <select name="role" required>
               <option value="">Choose one</option>
@@ -211,10 +217,38 @@
             </select>
           </label>
           <label>
+            Primary interest
+            <select name="pillar">
+              <option value="">Choose one</option>
+              <option>Inspiration</option>
+              <option>Symptom Care</option>
+              <option>Nutrition</option>
+              <option>Research</option>
+              <option>Resources</option>
+            </select>
+          </label>
+          <label>
+            Preferred contact method
+            <select name="preferred_channel">
+              <option value="">Choose one</option>
+              <option>Email</option>
+              <option>SMS</option>
+              <option>Either email or SMS</option>
+            </select>
+          </label>
+          <label>
             What kind of support would help most?
             <textarea name="message" rows="5" required></textarea>
           </label>
-          <button class="button button-primary" type="submit">Prepare Email</button>
+          <label class="check-label">
+            <input name="email_opt_in" type="checkbox">
+            <span>I agree to receive email updates from Cancer Coach USA.</span>
+          </label>
+          <label class="check-label">
+            <input name="sms_opt_in" type="checkbox">
+            <span>I agree to receive text messages from Cancer Coach USA. Message and data rates may apply. Reply STOP to opt out.</span>
+          </label>
+          <button class="button button-primary" type="submit">Send Request</button>
           <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
         </form>
       </section>

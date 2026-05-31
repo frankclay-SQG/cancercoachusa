@@ -88,6 +88,10 @@ a {
   color: var(--ink);
 }
 
+.nav-links a[aria-current="page"] {
+  color: var(--ink);
+}
+
 .nav-cta {
   justify-self: end;
   padding: 10px 16px;
@@ -533,6 +537,188 @@ h3 {
   font-size: 1.05rem;
 }
 
+.blog-shell {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 56px);
+  align-items: start;
+}
+
+.blog-list-panel {
+  position: sticky;
+  top: 104px;
+}
+
+.blog-list {
+  display: grid;
+  gap: 10px;
+}
+
+.blog-list-item {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 18px;
+  color: var(--charcoal);
+  background: var(--paper);
+  border: 1px solid rgba(85, 91, 96, 0.16);
+  border-radius: var(--radius);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.blog-list-item span,
+.schedule-slot span {
+  color: var(--sage);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.blog-list-item strong,
+.schedule-slot strong {
+  font-size: 1.06rem;
+  line-height: 1.2;
+}
+
+.blog-list-item small,
+.post-meta {
+  color: var(--steel);
+  font-size: 0.86rem;
+}
+
+.blog-post {
+  min-height: 520px;
+  padding: clamp(22px, 4vw, 42px);
+  background: var(--paper);
+  border: 1px solid rgba(85, 91, 96, 0.16);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.blog-post h1 {
+  max-width: 12ch;
+  font-size: clamp(2.6rem, 5vw, 5.2rem);
+}
+
+.post-hero-image {
+  width: 100%;
+  max-height: 420px;
+  margin-bottom: 26px;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.post-excerpt {
+  color: var(--graphite);
+  font-size: 1.12rem;
+}
+
+.rich-text {
+  color: var(--graphite);
+}
+
+.rich-text h2,
+.rich-text h3 {
+  margin-top: 34px;
+  font-size: clamp(1.55rem, 3vw, 2.4rem);
+}
+
+.rich-text p,
+.rich-text li {
+  font-size: 1rem;
+}
+
+.rich-text a {
+  color: var(--sage);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.rich-text blockquote {
+  margin: 28px 0;
+  padding-left: 20px;
+  color: var(--charcoal);
+  border-left: 4px solid var(--silver);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.rich-text figure {
+  margin: 30px 0;
+}
+
+.rich-text figure img {
+  width: 100%;
+  border-radius: var(--radius);
+}
+
+.rich-text figcaption {
+  margin-top: 8px;
+  color: var(--steel);
+  font-size: 0.86rem;
+}
+
+.file-link {
+  display: inline-flex;
+  padding: 10px 12px;
+  background: var(--mist);
+  border-radius: var(--radius);
+}
+
+.schedule-shell {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.65fr) minmax(320px, 1fr);
+  gap: clamp(28px, 6vw, 76px);
+  align-items: start;
+}
+
+.schedule-shell p:not(.eyebrow) {
+  color: var(--graphite);
+}
+
+.schedule-calendar {
+  display: grid;
+  gap: 16px;
+}
+
+.schedule-day {
+  padding: 22px;
+  background: var(--paper);
+  border: 1px solid rgba(85, 91, 96, 0.16);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 34px rgba(23, 25, 27, 0.06);
+}
+
+.schedule-slot-list {
+  display: grid;
+  gap: 12px;
+}
+
+.schedule-slot {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  background: var(--pearl);
+  border: 1px solid rgba(85, 91, 96, 0.14);
+  border-radius: var(--radius);
+}
+
+.schedule-slot p {
+  margin-bottom: 0;
+  color: var(--graphite);
+}
+
+.schedule-slot .button {
+  width: fit-content;
+  margin-top: 6px;
+}
+
+.loading-text {
+  color: var(--graphite);
+}
+
 .contact-section {
   display: grid;
   grid-template-columns: minmax(280px, 0.8fr) minmax(320px, 0.9fr);
@@ -584,6 +770,22 @@ textarea {
 
 textarea {
   resize: vertical;
+}
+
+.check-label {
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+  gap: 10px;
+  color: var(--graphite);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.check-label input {
+  width: 18px;
+  min-height: 18px;
+  margin-top: 2px;
+  accent-color: var(--charcoal);
 }
 
 input:focus,
@@ -658,7 +860,9 @@ textarea:focus {
   .section-heading,
   .pathway-section,
   .contact-section,
-  .pillar-cta {
+  .pillar-cta,
+  .blog-shell,
+  .schedule-shell {
     grid-template-columns: 1fr;
   }
 
@@ -668,6 +872,10 @@ textarea:focus {
 
   .feature-pillar {
     grid-template-columns: 1fr;
+  }
+
+  .blog-list-panel {
+    position: static;
   }
 }
 
@@ -729,6 +937,14 @@ textarea:focus {
 
   .pillar-card {
     min-height: auto;
+  }
+
+  .blog-post {
+    min-height: auto;
+  }
+
+  .schedule-slot .button {
+    width: 100%;
   }
 
   .timeline li {

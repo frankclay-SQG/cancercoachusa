@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Cancer Coach USA blog articles, guidance, and resources powered by Sanity."
+    >
+    <title>Blog | Cancer Coach USA</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header" aria-label="Primary">
+      <a class="brand" href="index.html#top" aria-label="Cancer Coach USA home">
+        <span>Cancer Coach USA</span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html#support">Support</a>
+        <a href="index.html#pathway">Pathway</a>
+        <a href="pillars.html">Five Pillars</a>
+        <a href="blog.html" aria-current="page">Blog</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="index.html#resources">Resources</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+      <a class="nav-cta" href="index.html#contact">Request Guidance</a>
+    </header>
+
+    <main id="top">
+      <section class="page-hero" aria-labelledby="blog-title">
+        <div>
+          <p class="eyebrow">Sanity-powered articles</p>
+          <h1 id="blog-title">Blog</h1>
+          <p class="page-hero-copy">
+            Guidance, stories, and resources for people facing cancer and the people beside them.
+          </p>
+        </div>
+      </section>
+
+      <section class="section blog-shell" aria-live="polite">
+        <div class="blog-list-panel">
+          <p class="eyebrow">Latest posts</p>
+          <div id="blog-list" class="blog-list">
+            <p class="loading-text">Loading posts from Sanity.</p>
+          </div>
+        </div>
+        <article id="blog-post" class="blog-post">
+          <p class="loading-text">Choose a post to read.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-meta">
+        <span>Cancer Coach USA</span>
+        <span>Grey ribbon awareness for cancer</span>
+      </div>
+      <p class="footer-disclaimer">
+        Medical disclaimer: Cancer Coach USA does not provide medical advice,
+        diagnosis, or treatment. Information and coaching are for general
+        support and education only and are not a substitute for care from a
+        qualified medical professional. Always consult your physician or care
+        team with medical questions.
+      </p>
+    </footer>
+
+    <script src="blog.js"></script>
+  </body>
+</html>
