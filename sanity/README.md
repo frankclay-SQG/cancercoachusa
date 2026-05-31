@@ -46,5 +46,16 @@ Required env vars:
 - `SANITY_WRITE_TOKEN`: Sanity token with permission to create/update `post` documents.
 
 The admin page creates text-based Portable Text posts from paragraph input. Use
-Sanity Studio for uploaded images, downloadable files, detailed rich text
-formatting, and editorial review workflows.
+the media upload fields for featured images, inline images, and downloadable
+files. Uploaded inline media is appended after the text body. Use Sanity Studio
+for detailed media placement, advanced rich text formatting, and editorial
+review workflows.
+
+The admin page supports:
+
+- Loading existing posts.
+- Creating posts.
+- Editing posts.
+- Deleting posts.
+- Uploading featured images.
+- Uploading inline images and downloadable files.

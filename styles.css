@@ -224,6 +224,11 @@ h3 {
   border-color: rgba(85, 91, 96, 0.22);
 }
 
+.button-danger {
+  color: var(--paper);
+  background: #7c2d2d;
+}
+
 .quick-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -721,11 +726,82 @@ h3 {
 
 .admin-section {
   display: grid;
+  gap: 24px;
   justify-items: center;
+}
+
+.admin-manage-panel {
+  display: grid;
+  gap: 18px;
+  width: min(760px, 100%);
+  padding: 24px;
+  background: var(--paper);
+  border: 1px solid rgba(85, 91, 96, 0.16);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 34px rgba(23, 25, 27, 0.06);
+}
+
+.admin-manage-panel h2 {
+  margin-bottom: 12px;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.admin-manage-panel p:not(.eyebrow) {
+  margin-bottom: 0;
+  color: var(--graphite);
+}
+
+.admin-post-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-post-item {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  color: var(--charcoal);
+  background: var(--pearl);
+  border: 1px solid rgba(85, 91, 96, 0.16);
+  border-radius: var(--radius);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-post-item span {
+  color: var(--sage);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-post-item small {
+  color: var(--steel);
 }
 
 .admin-form {
   width: min(760px, 100%);
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.media-preview {
+  display: grid;
+  gap: 8px;
+  color: var(--graphite);
+  font-size: 0.86rem;
+}
+
+.media-preview a {
+  color: var(--sage);
+  font-weight: 800;
+  text-decoration: underline;
 }
 
 .loading-text {
@@ -958,6 +1034,10 @@ textarea:focus {
 
   .schedule-slot .button {
     width: 100%;
+  }
+
+  .admin-actions {
+    display: grid;
   }
 
   .timeline li {

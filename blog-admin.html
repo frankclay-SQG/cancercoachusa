@@ -35,7 +35,23 @@
       </section>
 
       <section class="section admin-section">
+        <div class="admin-manage-panel">
+          <div>
+            <p class="eyebrow">Manage blogs</p>
+            <h2>Create, edit, and delete posts.</h2>
+            <p>
+              Enter the master key, load existing posts, select one to edit, or
+              start a new draft. Delete only when you are sure.
+            </p>
+          </div>
+          <button class="button button-secondary" id="load-posts-button" type="button">Load Posts</button>
+          <div id="admin-post-list" class="admin-post-list">
+            <p class="loading-text">Enter the master key and load posts to manage existing blogs.</p>
+          </div>
+        </div>
+
         <form class="contact-form admin-form" id="blog-admin-form">
+          <input name="post_id" type="hidden">
           <label>
             Master key
             <input name="master_key" type="password" autocomplete="current-password" required>
@@ -64,9 +80,19 @@
             <textarea name="excerpt" rows="3"></textarea>
           </label>
           <label>
+            Featured image
+            <input name="featured_image" type="file" accept="image/*">
+          </label>
+          <div id="featured-image-preview" class="media-preview"></div>
+          <label>
             Body
             <textarea name="body" rows="12" required></textarea>
           </label>
+          <label>
+            Inline media uploads
+            <input name="inline_media" type="file" multiple accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt">
+          </label>
+          <div id="inline-media-preview" class="media-preview"></div>
           <label>
             Publish mode
             <select name="mode">
@@ -75,10 +101,15 @@
             </select>
           </label>
           <p class="fine-print">
-            Separate paragraphs with a blank line. For uploaded media, add images
-            and files in Sanity Studio after the post is created.
+            Separate paragraphs with a blank line. Uploaded inline media is appended
+            after the text body. Use Sanity Studio for detailed placement and rich
+            formatting refinements.
           </p>
-          <button class="button button-primary" type="submit">Save Blog Post</button>
+          <div class="admin-actions">
+            <button class="button button-primary" type="submit">Save Blog Post</button>
+            <button class="button button-secondary" id="new-post-button" type="button">New Post</button>
+            <button class="button button-danger" id="delete-post-button" type="button">Delete Selected</button>
+          </div>
           <p class="form-status" id="blog-admin-status" role="status" aria-live="polite"></p>
         </form>
       </section>

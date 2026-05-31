@@ -1,4 +1,4 @@
-const { handleError, sanityMutate, sendJson } = require("./lib/sanity");
+const { handleError, sanityMutate, sanityQuery, sendJson } = require("./lib/sanity");
 
 function getHeader(request, name) {
   const headers = request.headers || {};
@@ -17,24 +17,57 @@ function slugify(value) {
 }
 
 function portableTextFromPlainText(value) {
+  const stamp = Date.now();
   return String(value || "")
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean)
     .map((paragraph, index) => ({
-      _key: `p${Date.now()}${index}`,
+      _key: `p${stamp}${index}`,
       _type: "block",
       style: "normal",
       markDefs: [],
       children: [
         {
-          _key: `s${Date.now()}${index}`,
+          _key: `s${stamp}${index}`,
           _type: "span",
           marks: [],
           text: paragraph.replace(/\n/g, " "),
         },
       ],
     }));
+}
+
+function mediaBlocksFromPayload(media = []) {
+  const stamp = Date.now();
+  return media
+    .filter((item) => item?.assetId)
+    .map((item, index) => {
+      if (item.assetType === "image") {
+        return {
+          _key: `img${stamp}${index}`,
+          _type: "image",
+          alt: item.alt || "",
+          caption: item.caption || "",
+          asset: { _type: "reference", _ref: item.assetId },
+        };
+      }
+
+      return {
+        _key: `file${stamp}${index}`,
+        _type: "file",
+        title: item.title || item.filename || "Download file",
+        asset: { _type: "reference", _ref: item.assetId },
+      };
+    });
+}
+
+function bodyPlainText(blocks = []) {
+  return blocks
+    .filter((block) => block?._type === "block")
+    .map((block) => (block.children || []).map((child) => child.text || "").join(""))
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 function validateMasterKey(request) {
@@ -54,8 +87,85 @@ function validateMasterKey(request) {
   }
 }
 
+async function readPayload(request) {
+  if (!request.body) return {};
+  if (typeof request.body === "string") return JSON.parse(request.body);
+  return request.body;
+}
+
+async function listPosts(response) {
+  const posts = await sanityQuery(`*[_type == "post"] | order(publishedAt desc){
+    _id,
+    title,
+    "slug": slug.current,
+    excerpt,
+    publishedAt,
+    category,
+    "bodyText": pt::text(body),
+    "mainImageAssetId": mainImage.asset._ref,
+    mainImage{
+      alt,
+      caption,
+      asset->{url}
+    },
+    body[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "assetId": asset._ref,
+        asset->{url}
+      },
+      _type == "file" => {
+        ...,
+        "assetId": asset._ref,
+        asset->{url, originalFilename, mimeType, size}
+      }
+    }
+  }`);
+
+  sendJson(response, 200, { posts: posts || [] });
+}
+
+function documentFromPayload(payload) {
+  const title = String(payload?.title || "").trim();
+  const bodyText = String(payload?.body || "").trim();
+  const slug = slugify(payload?.slug || title);
+
+  if (!title || !slug || !bodyText) {
+    const error = new Error("Title, slug, and body are required.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const documentId = payload?.id || (payload?.mode === "draft" ? `drafts.post-${slug}` : `post-${slug}`);
+  const document = {
+    _id: documentId,
+    _type: "post",
+    title,
+    slug: { _type: "slug", current: slug },
+    excerpt: String(payload?.excerpt || "").trim(),
+    category: String(payload?.category || "").trim(),
+    publishedAt: payload?.publishedAt || new Date().toISOString(),
+    body: [
+      ...portableTextFromPlainText(bodyText),
+      ...mediaBlocksFromPayload(payload?.media),
+    ],
+  };
+
+  if (payload?.mainImage?.assetId) {
+    document.mainImage = {
+      _type: "image",
+      alt: payload.mainImage.alt || "",
+      caption: payload.mainImage.caption || "",
+      asset: { _type: "reference", _ref: payload.mainImage.assetId },
+    };
+  }
+
+  return { document, slug };
+}
+
 module.exports = async function handler(request, response) {
-  if (request.method !== "POST") {
+  if (!["GET", "POST", "PUT", "DELETE"].includes(request.method)) {
     sendJson(response, 405, { error: "Method not allowed" });
     return;
   }
@@ -63,36 +173,31 @@ module.exports = async function handler(request, response) {
   try {
     validateMasterKey(request);
 
-    const payload = typeof request.body === "string" ? JSON.parse(request.body) : request.body;
-    const title = String(payload?.title || "").trim();
-    const bodyText = String(payload?.body || "").trim();
-    const slug = slugify(payload?.slug || title);
-
-    if (!title || !slug || !bodyText) {
-      sendJson(response, 400, { error: "Title, slug, and body are required." });
+    if (request.method === "GET") {
+      await listPosts(response);
       return;
     }
 
-    const document = {
-      _type: "post",
-      title,
-      slug: { _type: "slug", current: slug },
-      excerpt: String(payload?.excerpt || "").trim(),
-      category: String(payload?.category || "").trim(),
-      publishedAt: payload?.publishNow === false ? payload?.publishedAt || new Date().toISOString() : new Date().toISOString(),
-      body: portableTextFromPlainText(bodyText),
-    };
+    const payload = await readPayload(request);
 
-    if (payload?.mode === "draft") {
-      document._id = `drafts.post-${slug}`;
+    if (request.method === "DELETE") {
+      const id = payload?.id || request.query?.id;
+      if (!id) {
+        sendJson(response, 400, { error: "Post id is required." });
+        return;
+      }
+      await sanityMutate([{ delete: { id } }]);
+      sendJson(response, 200, { ok: true, deletedId: id });
+      return;
     }
 
+    const { document, slug } = documentFromPayload(payload);
     const result = await sanityMutate([{ createOrReplace: document }]);
     sendJson(response, 200, {
       ok: true,
       slug,
-      documentId: result.results?.[0]?.id,
-      mode: payload?.mode === "draft" ? "draft" : "published",
+      documentId: result.results?.[0]?.id || document._id,
+      mode: document._id.startsWith("drafts.") ? "draft" : "published",
     });
   } catch (error) {
     handleError(response, error);
