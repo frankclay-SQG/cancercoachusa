@@ -16,6 +16,8 @@ Required Vercel environment variables:
 Optional Vercel environment variables:
 
 - `SANITY_READ_TOKEN` or `SANITY_API_READ_TOKEN` if the dataset is private or if draft/preview access is needed.
+- `SANITY_WRITE_TOKEN` or `SANITY_API_WRITE_TOKEN` for the controlled blog admin interface.
+- `BLOG_ADMIN_MASTER_KEY` for the controlled blog admin interface at `/blog-admin.html`.
 - `HUBSPOT_PRIVATE_APP_TOKEN` for contact form submission.
 
 Optional HubSpot custom property mapping:
@@ -32,3 +34,17 @@ Optional HubSpot custom property mapping:
 - `HUBSPOT_CONSENT_TEXT_PROPERTY`
 
 If the optional HubSpot custom property names are not set, the API route will still create or update the contact using standard HubSpot properties: `email`, `firstname`, `lastname`, `phone`, and `mobilephone`.
+
+## Controlled Blog Admin
+
+The site includes a private admin page at `/blog-admin.html`. It is intentionally
+not linked in the public navigation.
+
+Required env vars:
+
+- `BLOG_ADMIN_MASTER_KEY`: shared secret required by the admin form.
+- `SANITY_WRITE_TOKEN`: Sanity token with permission to create/update `post` documents.
+
+The admin page creates text-based Portable Text posts from paragraph input. Use
+Sanity Studio for uploaded images, downloadable files, detailed rich text
+formatting, and editorial review workflows.

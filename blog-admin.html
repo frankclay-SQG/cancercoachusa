@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Blog Admin | Cancer Coach USA</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header" aria-label="Primary">
+      <a class="brand" href="index.html#top" aria-label="Cancer Coach USA home">
+        <span>Cancer Coach USA</span>
+      </a>
+      <a class="nav-cta" href="blog.html">View Blog</a>
+    </header>
+
+    <main id="top">
+      <section class="page-hero admin-hero" aria-labelledby="admin-title">
+        <div>
+          <p class="eyebrow">Controlled publishing</p>
+          <h1 id="admin-title">Blog Admin</h1>
+          <p class="page-hero-copy">
+            Create or update a Sanity blog post with the master key. Keep this URL
+            and key private.
+          </p>
+        </div>
+      </section>
+
+      <section class="section admin-section">
+        <form class="contact-form admin-form" id="blog-admin-form">
+          <label>
+            Master key
+            <input name="master_key" type="password" autocomplete="current-password" required>
+          </label>
+          <label>
+            Title
+            <input name="title" type="text" required>
+          </label>
+          <label>
+            Slug
+            <input name="slug" type="text" placeholder="auto-generated if left blank">
+          </label>
+          <label>
+            Category
+            <select name="category">
+              <option value="">Choose one</option>
+              <option>Inspiration</option>
+              <option>Symptom Care</option>
+              <option>Nutrition</option>
+              <option>Research</option>
+              <option>Resources</option>
+            </select>
+          </label>
+          <label>
+            Excerpt
+            <textarea name="excerpt" rows="3"></textarea>
+          </label>
+          <label>
+            Body
+            <textarea name="body" rows="12" required></textarea>
+          </label>
+          <label>
+            Publish mode
+            <select name="mode">
+              <option value="published">Publish now</option>
+              <option value="draft">Save as draft</option>
+            </select>
+          </label>
+          <p class="fine-print">
+            Separate paragraphs with a blank line. For uploaded media, add images
+            and files in Sanity Studio after the post is created.
+          </p>
+          <button class="button button-primary" type="submit">Save Blog Post</button>
+          <p class="form-status" id="blog-admin-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="blog-admin.js"></script>
+  </body>
+</html>

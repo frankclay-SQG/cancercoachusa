@@ -715,6 +715,19 @@ h3 {
   margin-top: 6px;
 }
 
+.admin-hero {
+  min-height: 44svh;
+}
+
+.admin-section {
+  display: grid;
+  justify-items: center;
+}
+
+.admin-form {
+  width: min(760px, 100%);
+}
+
 .loading-text {
   color: var(--graphite);
 }

@@ -14,6 +14,19 @@ function getSanityConfig() {
   return { projectId, dataset, token };
 }
 
+function getSanityWriteConfig() {
+  const config = getSanityConfig();
+  const token = process.env.SANITY_WRITE_TOKEN || process.env.SANITY_API_WRITE_TOKEN;
+
+  if (!token) {
+    const error = new Error("Missing SANITY_WRITE_TOKEN");
+    error.statusCode = 500;
+    throw error;
+  }
+
+  return { ...config, token };
+}
+
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
   response.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -50,6 +63,29 @@ async function sanityQuery(query, params = {}) {
   return body.result;
 }
 
+async function sanityMutate(mutations) {
+  const { projectId, dataset, token } = getSanityWriteConfig();
+  const url = `https://${projectId}.api.sanity.io/v${API_VERSION}/data/mutate/${dataset}`;
+  const result = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ mutations }),
+  });
+  const body = await result.json().catch(() => ({}));
+
+  if (!result.ok) {
+    const error = new Error(body?.error?.description || body?.message || "Sanity mutation failed");
+    error.statusCode = result.status;
+    error.details = body;
+    throw error;
+  }
+
+  return body;
+}
+
 function handleError(response, error) {
   sendJson(response, error.statusCode || 500, {
     error: error.message || "Unexpected server error",
@@ -59,6 +95,7 @@ function handleError(response, error) {
 
 module.exports = {
   handleError,
+  sanityMutate,
   sanityQuery,
   sendJson,
 };
