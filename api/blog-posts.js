@@ -36,8 +36,8 @@ module.exports = async function handler(request, response) {
     const slug = request.query?.slug;
     const posts = await sanityQuery(
       slug
-        ? `*[_type == "post" && slug.current == $slug][0]${POST_FIELDS}`
-        : `*[_type == "post" && defined(slug.current)] | order(publishedAt desc)${POST_FIELDS}`,
+        ? `*[_type == "post" && slug.current == $slug && publishedAt <= now()][0]${POST_FIELDS}`
+        : `*[_type == "post" && defined(slug.current) && publishedAt <= now()] | order(publishedAt desc)${POST_FIELDS}`,
       { slug }
     );
 

@@ -138,6 +138,16 @@ function documentFromPayload(payload) {
   }
 
   const documentId = payload?.id || (payload?.mode === "draft" ? `drafts.post-${slug}` : `post-${slug}`);
+  const publishedAt = payload?.mode === "scheduled"
+    ? payload?.publishedAt
+    : payload?.publishedAt || new Date().toISOString();
+
+  if (payload?.mode === "scheduled" && !publishedAt) {
+    const error = new Error("Scheduled posts require a publish date and time.");
+    error.statusCode = 400;
+    throw error;
+  }
+
   const document = {
     _id: documentId,
     _type: "post",
@@ -145,7 +155,7 @@ function documentFromPayload(payload) {
     slug: { _type: "slug", current: slug },
     excerpt: String(payload?.excerpt || "").trim(),
     category: String(payload?.category || "").trim(),
-    publishedAt: payload?.publishedAt || new Date().toISOString(),
+    publishedAt,
     body: [
       ...portableTextFromPlainText(bodyText),
       ...mediaBlocksFromPayload(payload?.media),
@@ -197,7 +207,7 @@ module.exports = async function handler(request, response) {
       ok: true,
       slug,
       documentId: result.results?.[0]?.id || document._id,
-      mode: document._id.startsWith("drafts.") ? "draft" : "published",
+      mode: document._id.startsWith("drafts.") ? "draft" : payload?.mode === "scheduled" ? "scheduled" : "published",
     });
   } catch (error) {
     handleError(response, error);

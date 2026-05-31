@@ -804,6 +804,18 @@ h3 {
   text-decoration: underline;
 }
 
+.schedule-publish-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.schedule-publish-fields .fine-print {
+  grid-column: 1 / -1;
+  padding-top: 0;
+  border-top: 0;
+}
+
 .loading-text {
   color: var(--graphite);
 }
@@ -1038,6 +1050,10 @@ textarea:focus {
 
   .admin-actions {
     display: grid;
+  }
+
+  .schedule-publish-fields {
+    grid-template-columns: 1fr;
   }
 
   .timeline li {

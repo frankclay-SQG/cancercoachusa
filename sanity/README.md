@@ -57,5 +57,12 @@ The admin page supports:
 - Creating posts.
 - Editing posts.
 - Deleting posts.
+- Saving as draft.
+- Publishing immediately.
+- Scheduling posts with date and time selection.
 - Uploading featured images.
 - Uploading inline images and downloadable files.
+
+Scheduled posts are stored as normal Sanity `post` documents with a future
+`publishedAt` timestamp. The public blog API only returns posts where
+`publishedAt <= now()`, so scheduled posts remain hidden until the publish time.

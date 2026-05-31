@@ -6,6 +6,7 @@ const newPostButton = document.querySelector("#new-post-button");
 const deletePostButton = document.querySelector("#delete-post-button");
 const featuredPreview = document.querySelector("#featured-image-preview");
 const inlinePreview = document.querySelector("#inline-media-preview");
+const scheduleFields = document.querySelector("#schedule-publish-fields");
 
 let posts = [];
 let selectedPost = null;
@@ -31,6 +32,54 @@ function setStatus(message) {
 function formatDate(value) {
   if (!value) return "No date";
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
+}
+
+function formatDateInput(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatTimeInput(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function isFutureDate(value) {
+  return value && new Date(value).getTime() > Date.now();
+}
+
+function updateScheduleFields() {
+  const isScheduled = adminForm.elements.mode.value === "scheduled";
+  scheduleFields.hidden = !isScheduled;
+  adminForm.elements.publish_date.required = isScheduled;
+  adminForm.elements.publish_time.required = isScheduled;
+}
+
+function scheduledIsoFromForm(formData) {
+  const mode = String(formData.get("mode") || "draft");
+  if (mode !== "scheduled") return "";
+
+  const date = String(formData.get("publish_date") || "");
+  const time = String(formData.get("publish_time") || "");
+  if (!date || !time) {
+    throw new Error("Choose a publish date and time for scheduled posts.");
+  }
+
+  const scheduled = new Date(`${date}T${time}`);
+  if (Number.isNaN(scheduled.getTime())) {
+    throw new Error("Choose a valid publish date and time.");
+  }
+
+  if (scheduled.getTime() <= Date.now()) {
+    throw new Error("Scheduled publish time must be in the future.");
+  }
+
+  return scheduled.toISOString();
 }
 
 function slugify(value) {
@@ -82,6 +131,7 @@ function resetEditor(keepKey = true) {
   preservedInlineMedia = [];
   featuredPreview.innerHTML = "";
   inlinePreview.innerHTML = "";
+  updateScheduleFields();
   setStatus("Ready for a new blog post.");
 }
 
@@ -96,7 +146,7 @@ function renderPostList() {
       <button class="admin-post-item" type="button" data-id="${escapeHtml(post._id)}">
         <span>${escapeHtml(post.category || "Article")}</span>
         <strong>${escapeHtml(post.title || "Untitled")}</strong>
-        <small>${escapeHtml(formatDate(post.publishedAt))}${post._id?.startsWith("drafts.") ? " | Draft" : ""}</small>
+        <small>${escapeHtml(formatDate(post.publishedAt))}${post._id?.startsWith("drafts.") ? " | Draft" : isFutureDate(post.publishedAt) ? " | Scheduled" : ""}</small>
       </button>
     `)
     .join("");
@@ -120,7 +170,10 @@ function loadPostIntoEditor(post) {
   adminForm.elements.category.value = post.category || "";
   adminForm.elements.excerpt.value = post.excerpt || "";
   adminForm.elements.body.value = post.bodyText || "";
-  adminForm.elements.mode.value = post._id?.startsWith("drafts.") ? "draft" : "published";
+  adminForm.elements.mode.value = post._id?.startsWith("drafts.") ? "draft" : isFutureDate(post.publishedAt) ? "scheduled" : "published";
+  adminForm.elements.publish_date.value = isFutureDate(post.publishedAt) ? formatDateInput(post.publishedAt) : "";
+  adminForm.elements.publish_time.value = isFutureDate(post.publishedAt) ? formatTimeInput(post.publishedAt) : "";
+  updateScheduleFields();
 
   renderMediaPreview(
     featuredPreview,
@@ -241,6 +294,7 @@ async function savePost(event) {
     setStatus("Preparing post.");
     const { mainImage, inlineMedia } = await uploadSelectedMedia(formData);
     const slug = String(formData.get("slug") || "").trim() || slugify(title);
+    const mode = String(formData.get("mode") || "draft");
     const payload = {
       id: String(formData.get("post_id") || ""),
       title,
@@ -248,7 +302,8 @@ async function savePost(event) {
       category: String(formData.get("category") || "").trim(),
       excerpt: String(formData.get("excerpt") || "").trim(),
       body,
-      mode: String(formData.get("mode") || "published"),
+      mode,
+      publishedAt: mode === "scheduled" ? scheduledIsoFromForm(formData) : undefined,
       mainImage,
       media: inlineMedia,
     };
@@ -310,6 +365,8 @@ async function deleteSelectedPost() {
 }
 
 adminForm?.addEventListener("submit", savePost);
+adminForm?.elements.mode.addEventListener("change", updateScheduleFields);
 loadPostsButton?.addEventListener("click", () => loadPosts().catch((error) => setStatus(error.message)));
 newPostButton?.addEventListener("click", () => resetEditor());
 deletePostButton?.addEventListener("click", deleteSelectedPost);
+updateScheduleFields();

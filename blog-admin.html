@@ -96,10 +96,24 @@
           <label>
             Publish mode
             <select name="mode">
-              <option value="published">Publish now</option>
               <option value="draft">Save as draft</option>
+              <option value="published">Publish now</option>
+              <option value="scheduled">Schedule</option>
             </select>
           </label>
+          <div class="schedule-publish-fields" id="schedule-publish-fields" hidden>
+            <label>
+              Publish date
+              <input name="publish_date" type="date">
+            </label>
+            <label>
+              Publish time
+              <input name="publish_time" type="time">
+            </label>
+            <p class="fine-print">
+              Scheduled posts use the timezone of the device used to create the post.
+            </p>
+          </div>
           <p class="fine-print">
             Separate paragraphs with a blank line. Uploaded inline media is appended
             after the text body. Use Sanity Studio for detailed placement and rich
