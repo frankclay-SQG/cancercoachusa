@@ -259,6 +259,76 @@ h3 {
   font-size: 0.92rem;
 }
 
+.story-gallery {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(420px, 1fr);
+  gap: clamp(28px, 6vw, 78px);
+  align-items: center;
+  padding: clamp(64px, 10vw, 124px) clamp(22px, 6vw, 88px);
+  background: var(--pearl);
+}
+
+.story-gallery-copy {
+  max-width: 620px;
+}
+
+.story-gallery-copy p:not(.eyebrow) {
+  margin-bottom: 0;
+  color: var(--graphite);
+  font-size: 1.05rem;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.82fr;
+  grid-template-rows: repeat(2, minmax(190px, 1fr));
+  gap: 14px;
+  min-height: 540px;
+}
+
+.photo-card {
+  position: relative;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  background: var(--mist);
+  border: 1px solid rgba(85, 91, 96, 0.16);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 38px rgba(23, 25, 27, 0.08);
+}
+
+.photo-card-large {
+  grid-row: 1 / -1;
+}
+
+.photo-card img {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  filter: saturate(0.86) contrast(0.98);
+}
+
+.photo-card::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(180deg, transparent 48%, rgba(23, 25, 27, 0.58));
+  pointer-events: none;
+}
+
+.photo-card figcaption {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  left: 16px;
+  z-index: 1;
+  color: var(--paper);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .section {
   padding: clamp(64px, 10vw, 124px) clamp(22px, 6vw, 88px);
 }
@@ -469,7 +539,36 @@ h3 {
 }
 
 .pillar-intro {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(320px, 0.7fr);
+  gap: clamp(28px, 6vw, 76px);
+  align-items: end;
   padding-bottom: clamp(36px, 6vw, 72px);
+}
+
+.pillar-support-photo {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: var(--mist);
+  border: 1px solid rgba(85, 91, 96, 0.16);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 38px rgba(23, 25, 27, 0.08);
+}
+
+.pillar-support-photo img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  filter: saturate(0.82) contrast(0.98);
+}
+
+.pillar-support-photo figcaption {
+  padding: 14px 16px;
+  color: var(--graphite);
+  background: rgba(255, 255, 255, 0.84);
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .pillar-grid-section {
@@ -954,8 +1053,14 @@ textarea:focus {
   .quick-strip,
   .support-grid,
   .resource-list,
-  .pillar-grid-section {
+  .pillar-grid-section,
+  .story-gallery,
+  .pillar-intro {
     grid-template-columns: 1fr;
+  }
+
+  .photo-grid {
+    min-height: 0;
   }
 
   .section-heading,
@@ -1030,6 +1135,17 @@ textarea:focus {
   .hero-actions,
   .button {
     width: 100%;
+  }
+
+  .photo-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+
+  .photo-card,
+  .photo-card-large {
+    grid-row: auto;
+    min-height: 260px;
   }
 
   .pillar-jump {
