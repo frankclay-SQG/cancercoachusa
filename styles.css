@@ -536,6 +536,11 @@ h3 {
   font-size: 0.95rem;
 }
 
+.section-link {
+  display: flex;
+  margin-top: 28px;
+}
+
 .page-hero {
   position: relative;
   display: grid;
