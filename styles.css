@@ -417,6 +417,9 @@ h3 {
 }
 
 .support-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
   min-height: 250px;
   padding: 24px;
   background: var(--paper);
@@ -430,9 +433,18 @@ h3 {
   color: var(--graphite);
 }
 
+.card-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: calc(var(--radius) - 2px);
+  filter: saturate(0.82) contrast(0.98);
+}
+
 .card-number {
   display: inline-block;
-  margin-bottom: 36px;
+  margin-bottom: 6px;
   color: var(--amber);
   font-size: 0.8rem;
   font-weight: 800;
@@ -585,6 +597,45 @@ h3 {
   font-size: 0.88rem;
   font-weight: 800;
   text-align: center;
+}
+
+.pillar-house-section {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.56fr) minmax(420px, 1fr);
+  gap: clamp(28px, 6vw, 76px);
+  align-items: center;
+  background:
+    linear-gradient(180deg, rgba(238, 240, 241, 0.8), rgba(248, 248, 246, 0.98)),
+    var(--mist);
+}
+
+.pillar-house-copy {
+  max-width: 560px;
+}
+
+.pillar-house-copy p:not(.eyebrow) {
+  margin-bottom: 0;
+  color: var(--graphite);
+  font-size: 1.04rem;
+}
+
+.pillar-house-figure {
+  margin: 0;
+}
+
+.pillar-house-figure img {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid rgba(85, 91, 96, 0.16);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 38px rgba(23, 25, 27, 0.08);
+}
+
+.pillar-house-figure figcaption {
+  margin-top: 10px;
+  color: var(--graphite);
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .pillar-intro {
@@ -904,6 +955,9 @@ h3 {
 }
 
 .meeting-plan article {
+  display: grid;
+  align-content: start;
+  gap: 14px;
   min-height: 250px;
   padding: 22px;
   background: var(--paper);
@@ -1321,7 +1375,8 @@ textarea:focus {
   .resource-list,
   .pillar-grid-section,
   .story-gallery,
-  .pillar-intro {
+  .pillar-intro,
+  .pillar-house-section {
     grid-template-columns: 1fr;
   }
 
