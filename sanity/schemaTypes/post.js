@@ -33,7 +33,7 @@ export default {
       title: "Category",
       type: "string",
       options: {
-        list: ["Inspiration", "Symptom Care", "Nutrition", "Research", "Resources"],
+        list: ["Inspiration", "Symptom Care", "Survivorship", "Nutrition", "Research", "Resources"],
       },
     },
     {

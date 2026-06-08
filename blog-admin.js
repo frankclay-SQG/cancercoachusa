@@ -3,17 +3,31 @@ const adminStatus = document.querySelector("#blog-admin-status");
 const postList = document.querySelector("#admin-post-list");
 const loadPostsButton = document.querySelector("#load-posts-button");
 const newPostButton = document.querySelector("#new-post-button");
-const postNowButton = document.querySelector("#post-now-button");
 const deletePostButton = document.querySelector("#delete-post-button");
 const featuredPreview = document.querySelector("#featured-image-preview");
 const inlinePreview = document.querySelector("#inline-media-preview");
 const scheduleFields = document.querySelector("#schedule-publish-fields");
 const bodyEditor = document.querySelector("#blog-body-editor");
 const inlineImageInput = document.querySelector("#inline-image-input");
+const previewPanel = document.querySelector("#blog-preview-panel");
+const previewStatus = document.querySelector("#blog-preview-status");
+const previewTitleInput = document.querySelector("#preview-title-input");
+const previewCategoryInput = document.querySelector("#preview-category-input");
+const previewExcerptInput = document.querySelector("#preview-excerpt-input");
+const previewFeaturedImage = document.querySelector("#preview-featured-image");
+const previewBodyEditor = document.querySelector("#preview-body-editor");
+const previewPublishDate = document.querySelector("#preview-publish-date");
+const previewPublishTime = document.querySelector("#preview-publish-time");
+const previewPostNowButton = document.querySelector("#preview-post-now-button");
+const previewDraftButton = document.querySelector("#preview-draft-button");
+const previewScheduleButton = document.querySelector("#preview-schedule-button");
+const previewCancelButton = document.querySelector("#preview-cancel-button");
 
 let posts = [];
 let selectedPost = null;
 let lastEditorRange = null;
+let previewGeneratedExcerpt = "";
+let previewFeaturedImageUrl = "";
 
 function escapeHtml(value) {
   return String(value || "")
@@ -30,6 +44,7 @@ function masterKey() {
 
 function setStatus(message) {
   adminStatus.textContent = message;
+  if (previewStatus) previewStatus.textContent = message;
 }
 
 function formatDate(value) {
@@ -133,12 +148,7 @@ function updateScheduleFields() {
   adminForm.elements.publish_time.required = isScheduled;
 }
 
-function scheduledIsoFromForm(formData) {
-  const mode = String(formData.get("mode") || "draft");
-  if (mode !== "scheduled") return "";
-
-  const date = String(formData.get("publish_date") || "");
-  const time = String(formData.get("publish_time") || "");
+function scheduledIsoFromValues(date, time) {
   if (!date || !time) {
     throw new Error("Choose a publish date and time for scheduled posts.");
   }
@@ -153,6 +163,15 @@ function scheduledIsoFromForm(formData) {
   }
 
   return scheduled.toISOString();
+}
+
+function scheduledIsoFromForm(formData) {
+  const mode = String(formData.get("mode") || "draft");
+  if (mode !== "scheduled") return "";
+
+  const date = String(formData.get("publish_date") || "");
+  const time = String(formData.get("publish_time") || "");
+  return scheduledIsoFromValues(date, time);
 }
 
 function slugify(value) {
@@ -361,10 +380,10 @@ function imageBlockFromElement(element) {
   };
 }
 
-function blocksFromEditor() {
+function blocksFromContainer(container) {
   const blocks = [];
 
-  bodyEditor.childNodes.forEach((node) => {
+  container.childNodes.forEach((node) => {
     if (node.nodeType === Node.TEXT_NODE) {
       const wrapper = document.createElement("p");
       wrapper.textContent = node.textContent;
@@ -406,6 +425,10 @@ function blocksFromEditor() {
   });
 
   return blocks;
+}
+
+function blocksFromEditor() {
+  return blocksFromContainer(bodyEditor);
 }
 
 function plainTextFromBlocks(blocks = []) {
@@ -518,6 +541,72 @@ function editorHtmlFromPlainText(value) {
     .join("");
 }
 
+function showAdminForm() {
+  adminForm.hidden = false;
+  previewPanel.hidden = true;
+}
+
+function showPreviewPanel() {
+  previewPanel.hidden = false;
+  adminForm.hidden = true;
+  previewPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderPreviewFeaturedImage(formData, title) {
+  if (previewFeaturedImageUrl) {
+    URL.revokeObjectURL(previewFeaturedImageUrl);
+    previewFeaturedImageUrl = "";
+  }
+
+  const featuredFile = formData.get("featured_image");
+  if (featuredFile && featuredFile.size > 0 && featuredFile.type.startsWith("image/")) {
+    previewFeaturedImageUrl = URL.createObjectURL(featuredFile);
+    previewFeaturedImage.innerHTML = `
+      <img src="${escapeHtml(previewFeaturedImageUrl)}" alt="${escapeHtml(title)}">
+    `;
+    return;
+  }
+
+  const existingUrl = selectedPost?.mainImage?.asset?.url || "";
+  if (existingUrl) {
+    previewFeaturedImage.innerHTML = `
+      <img src="${escapeHtml(existingUrl)}" alt="${escapeHtml(selectedPost.mainImage?.alt || title)}">
+    `;
+    return;
+  }
+
+  previewFeaturedImage.innerHTML = "";
+}
+
+function previewBodyText() {
+  return plainTextFromBlocks(blocksFromContainer(previewBodyEditor));
+}
+
+function refreshPreviewSummary() {
+  const currentSummary = previewExcerptInput.value.trim();
+  if (currentSummary && currentSummary !== previewGeneratedExcerpt) return;
+
+  previewGeneratedExcerpt = generatedSummary(previewTitleInput.value, previewBodyText());
+  previewExcerptInput.value = previewGeneratedExcerpt;
+}
+
+function syncPreviewToEditor() {
+  adminForm.elements.title.value = previewTitleInput.value;
+  adminForm.elements.category.value = previewCategoryInput.value;
+  adminForm.elements.excerpt.value = previewExcerptInput.value;
+  adminForm.elements.publish_date.value = previewPublishDate.value;
+  adminForm.elements.publish_time.value = previewPublishTime.value;
+  bodyEditor.innerHTML = previewBodyEditor.innerHTML;
+  renderMediaPreview(inlinePreview, mediaFromBlocks(blocksFromEditor()));
+}
+
+function closePreview() {
+  syncPreviewToEditor();
+  showAdminForm();
+  updateScheduleFields();
+  setStatus("Preview closed.");
+}
+
 function resetEditor(keepKey = true) {
   const key = masterKey();
   adminForm.reset();
@@ -527,6 +616,9 @@ function resetEditor(keepKey = true) {
   bodyEditor.innerHTML = "";
   featuredPreview.innerHTML = "";
   inlinePreview.innerHTML = "";
+  previewFeaturedImage.innerHTML = "";
+  previewBodyEditor.innerHTML = "";
+  showAdminForm();
   updateGeneratedExcerpt();
   updateScheduleFields();
   setStatus("Ready for a new blog post.");
@@ -559,6 +651,7 @@ function renderPostList() {
 function loadPostIntoEditor(post) {
   if (!post) return;
   selectedPost = post;
+  showAdminForm();
 
   adminForm.elements.post_id.value = post._id || "";
   adminForm.elements.title.value = post.title || "";
@@ -623,7 +716,7 @@ async function uploadFile(file) {
   return data;
 }
 
-async function uploadSelectedMedia(formData) {
+async function uploadSelectedMedia(formData, titleOverride = "") {
   const featuredFile = formData.get("featured_image");
   let mainImage = null;
 
@@ -636,7 +729,7 @@ async function uploadSelectedMedia(formData) {
     mainImage = {
       assetType: "image",
       assetId: uploaded.assetId,
-      alt: String(formData.get("title") || ""),
+      alt: titleOverride || String(formData.get("title") || ""),
       caption: "",
       url: uploaded.url,
     };
@@ -707,7 +800,7 @@ function applyEditorCommand(button) {
   updateGeneratedExcerpt();
 }
 
-async function savePost(event, options = {}) {
+function openPreview(event) {
   event?.preventDefault();
 
   const formData = new FormData(adminForm);
@@ -724,22 +817,51 @@ async function savePost(event, options = {}) {
     return;
   }
 
+  const excerpt = generatedSummary(title, bodyText);
+  previewGeneratedExcerpt = excerpt;
+  adminForm.elements.excerpt.value = excerpt;
+  previewTitleInput.value = title;
+  previewCategoryInput.value = String(formData.get("category") || "").trim();
+  previewExcerptInput.value = excerpt;
+  previewBodyEditor.innerHTML = bodyEditor.innerHTML;
+  previewPublishDate.value = String(formData.get("publish_date") || "");
+  previewPublishTime.value = String(formData.get("publish_time") || "");
+  renderPreviewFeaturedImage(formData, title);
+  showPreviewPanel();
+  setStatus("Preview ready.");
+}
+
+async function savePreviewPost(mode) {
+  const formData = new FormData(adminForm);
+  if (!masterKey()) {
+    setStatus("Master key is required.");
+    return;
+  }
+
+  const title = previewTitleInput.value.trim();
+  const bodyBlocks = blocksFromContainer(previewBodyEditor);
+  const bodyText = plainTextFromBlocks(bodyBlocks);
+  if (!title || !bodyBlocks.length || !bodyText) {
+    setStatus("Title and body are required.");
+    return;
+  }
+
   try {
     setStatus("Preparing post.");
-    const { mainImage } = await uploadSelectedMedia(formData);
-    const mode = options.modeOverride || String(formData.get("mode") || "draft");
-    const excerpt = generatedSummary(title, bodyText);
+    const { mainImage } = await uploadSelectedMedia(formData, title);
+    const generated = generatedSummary(title, bodyText);
+    const excerpt = previewExcerptInput.value.trim() || generated;
     adminForm.elements.excerpt.value = excerpt;
     const payload = {
       id: String(formData.get("post_id") || ""),
       title,
       slug: slugify(title),
-      category: String(formData.get("category") || "").trim(),
+      category: previewCategoryInput.value.trim(),
       excerpt,
       body: bodyText,
       bodyBlocks,
       mode,
-      publishedAt: mode === "scheduled" ? scheduledIsoFromForm(formData) : undefined,
+      publishedAt: mode === "scheduled" ? scheduledIsoFromValues(previewPublishDate.value, previewPublishTime.value) : undefined,
       mainImage,
     };
 
@@ -758,6 +880,10 @@ async function savePost(event, options = {}) {
       throw new Error(data.error || "Unable to save this blog post.");
     }
 
+    syncPreviewToEditor();
+    adminForm.elements.mode.value = mode;
+    showAdminForm();
+    updateScheduleFields();
     setStatus(`Saved ${data.mode} post: ${data.slug}.`);
     await loadPosts();
   } catch (error) {
@@ -765,12 +891,10 @@ async function savePost(event, options = {}) {
   }
 }
 
-async function postNow() {
-  adminForm.elements.mode.value = "published";
-  adminForm.elements.publish_date.value = "";
-  adminForm.elements.publish_time.value = "";
-  updateScheduleFields();
-  await savePost(null, { modeOverride: "published" });
+async function postPreviewNow() {
+  previewPublishDate.value = "";
+  previewPublishTime.value = "";
+  await savePreviewPost("published");
 }
 
 async function deleteSelectedPost() {
@@ -807,20 +931,29 @@ async function deleteSelectedPost() {
   }
 }
 
-adminForm?.addEventListener("submit", savePost);
+adminForm?.addEventListener("submit", openPreview);
 adminForm?.elements.mode.addEventListener("change", updateScheduleFields);
 adminForm?.elements.title.addEventListener("input", updateGeneratedExcerpt);
 bodyEditor?.addEventListener("input", updateGeneratedExcerpt);
 bodyEditor?.addEventListener("keyup", rememberEditorSelection);
 bodyEditor?.addEventListener("mouseup", rememberEditorSelection);
 bodyEditor?.addEventListener("focus", rememberEditorSelection);
+previewTitleInput?.addEventListener("input", refreshPreviewSummary);
+previewBodyEditor?.addEventListener("input", refreshPreviewSummary);
 inlineImageInput?.addEventListener("change", insertInlineImages);
 document.querySelectorAll(".rich-editor-toolbar button").forEach((button) => {
   button.addEventListener("click", () => applyEditorCommand(button));
 });
 loadPostsButton?.addEventListener("click", () => loadPosts().catch((error) => setStatus(error.message)));
 newPostButton?.addEventListener("click", () => resetEditor());
-postNowButton?.addEventListener("click", () => postNow().catch((error) => setStatus(error.message)));
+previewPostNowButton?.addEventListener("click", () => postPreviewNow().catch((error) => setStatus(error.message)));
+previewDraftButton?.addEventListener("click", () => {
+  previewPublishDate.value = "";
+  previewPublishTime.value = "";
+  savePreviewPost("draft").catch((error) => setStatus(error.message));
+});
+previewScheduleButton?.addEventListener("click", () => savePreviewPost("scheduled").catch((error) => setStatus(error.message)));
+previewCancelButton?.addEventListener("click", closePreview);
 deletePostButton?.addEventListener("click", deleteSelectedPost);
 updateGeneratedExcerpt();
 updateScheduleFields();

@@ -75,6 +75,7 @@
               <option value="">Choose one</option>
               <option>Inspiration</option>
               <option>Symptom Care</option>
+              <option>Survivorship</option>
               <option>Nutrition</option>
               <option>Research</option>
               <option>Resources</option>
@@ -143,13 +144,71 @@
             generated from the post body before the post is saved.
           </p>
           <div class="admin-actions">
-            <button class="button button-primary" type="submit">Save Blog Post</button>
-            <button class="button button-primary" id="post-now-button" type="button">Post Now</button>
+            <button class="button button-primary" type="submit">Preview Blog Post</button>
             <button class="button button-secondary" id="new-post-button" type="button">New Post</button>
             <button class="button button-danger" id="delete-post-button" type="button">Delete Selected</button>
           </div>
           <p class="form-status" id="blog-admin-status" role="status" aria-live="polite"></p>
         </form>
+
+        <section class="contact-form admin-preview" id="blog-preview-panel" aria-labelledby="blog-preview-title" hidden>
+          <div>
+            <p class="eyebrow">Preview</p>
+            <h2 id="blog-preview-title">Review blog post</h2>
+          </div>
+          <div class="preview-meta-grid">
+            <label>
+              Title
+              <input id="preview-title-input" type="text" required>
+            </label>
+            <label>
+              Category
+              <select id="preview-category-input">
+                <option value="">Choose one</option>
+                <option>Inspiration</option>
+                <option>Symptom Care</option>
+                <option>Survivorship</option>
+                <option>Nutrition</option>
+                <option>Research</option>
+                <option>Resources</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            Summary
+            <textarea id="preview-excerpt-input" rows="3"></textarea>
+          </label>
+          <div id="preview-featured-image" class="preview-featured-image"></div>
+          <div class="rich-editor-field">
+            <span>Body preview</span>
+            <div
+              class="rich-editor preview-editor"
+              id="preview-body-editor"
+              contenteditable="true"
+              role="textbox"
+              aria-multiline="true"
+              aria-label="Blog post preview body"
+              data-placeholder="Write the blog post here."
+            ></div>
+          </div>
+          <div class="schedule-publish-fields preview-schedule-fields">
+            <label>
+              Publish date
+              <input id="preview-publish-date" type="date">
+            </label>
+            <label>
+              Publish time
+              <input id="preview-publish-time" type="time">
+            </label>
+          </div>
+          <div class="admin-actions preview-actions">
+            <button class="button button-primary" id="preview-post-now-button" type="button">Post Now</button>
+            <button class="button button-secondary" id="preview-draft-button" type="button">Save as Draft</button>
+            <button class="button button-secondary" id="preview-schedule-button" type="button">Schedule</button>
+            <button class="button button-danger" id="preview-cancel-button" type="button">Cancel</button>
+          </div>
+          <p class="form-status" id="blog-preview-status" role="status" aria-live="polite"></p>
+        </section>
       </section>
     </main>
 

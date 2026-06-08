@@ -139,6 +139,17 @@ function summaryFromText(title, value) {
   );
 }
 
+function excerptFromPayload(title, bodyText, excerpt) {
+  const provided = String(excerpt || "").replace(/\s+/g, " ").trim();
+  const body = String(bodyText || "").replace(/\s+/g, " ").trim();
+
+  if (provided && provided !== body) {
+    return trimSummary(provided);
+  }
+
+  return summaryFromText(title, bodyText);
+}
+
 function uniqueKey(prefix, index) {
   return `${prefix}${Date.now()}${index}`;
 }
@@ -312,7 +323,7 @@ function documentFromPayload(payload) {
     _type: "post",
     title,
     slug: { _type: "slug", current: slug },
-    excerpt: summaryFromText(title, bodyText),
+    excerpt: excerptFromPayload(title, bodyText, payload?.excerpt),
     category: String(payload?.category || "").trim(),
     publishedAt,
     body,
