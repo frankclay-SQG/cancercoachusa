@@ -70,12 +70,73 @@ function bodyPlainText(blocks = []) {
     .join("\n\n");
 }
 
-function excerptFromText(value) {
+const summaryStopWords = new Set([
+  "about",
+  "after",
+  "also",
+  "because",
+  "been",
+  "before",
+  "being",
+  "care",
+  "from",
+  "have",
+  "into",
+  "more",
+  "most",
+  "post",
+  "that",
+  "their",
+  "there",
+  "these",
+  "this",
+  "through",
+  "with",
+  "your",
+]);
+
+function summaryTerms(value) {
+  const counts = new Map();
+  const words = String(value || "").toLowerCase().match(/[a-z][a-z'-]{3,}/g) || [];
+
+  words.forEach((word) => {
+    const term = word.replace(/^'+|'+$/g, "");
+    if (summaryStopWords.has(term)) return;
+    counts.set(term, (counts.get(term) || 0) + 1);
+  });
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 4)
+    .map(([term]) => term);
+}
+
+function readableList(items) {
+  const cleanItems = items.filter(Boolean);
+  if (cleanItems.length <= 1) return cleanItems[0] || "";
+  if (cleanItems.length === 2) return `${cleanItems[0]} and ${cleanItems[1]}`;
+  return `${cleanItems.slice(0, -1).join(", ")}, and ${cleanItems.at(-1)}`;
+}
+
+function trimSummary(value) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
   if (text.length <= 180) return text;
-  const clipped = text.slice(0, 181);
-  const breakAt = clipped.lastIndexOf(" ") > 120 ? clipped.lastIndexOf(" ") : 180;
-  return `${clipped.slice(0, breakAt).trim()}...`;
+  return `${text.slice(0, 177).replace(/\s+\S*$/, "").trim()}...`;
+}
+
+function summaryFromText(title, value) {
+  const cleanTitle = String(title || "").replace(/[.!?]+$/g, "").trim();
+  const terms = summaryTerms(value).filter((term) => !cleanTitle.toLowerCase().includes(term));
+  const topic = cleanTitle || readableList(terms.slice(0, 2)) || "the article";
+  const focus = readableList(terms.slice(0, 3));
+
+  if (!focus) {
+    return trimSummary(`A concise overview of ${topic} for readers seeking practical support.`);
+  }
+
+  return trimSummary(
+    `A concise overview of ${topic}, highlighting ${focus} for readers seeking practical support.`
+  );
 }
 
 function uniqueKey(prefix, index) {
@@ -232,7 +293,10 @@ function documentFromPayload(payload) {
     throw error;
   }
 
-  const documentId = payload?.id || (payload?.mode === "draft" ? `drafts.post-${slug}` : `post-${slug}`);
+  const payloadId = String(payload?.id || "");
+  const baseDocumentId = payloadId.replace(/^drafts\./, "") || `post-${slug}`;
+  const documentId = payload?.mode === "draft" ? `drafts.${baseDocumentId}` : baseDocumentId;
+  const draftIdToDelete = payloadId.startsWith("drafts.") && documentId !== payloadId ? payloadId : "";
   const publishedAt = payload?.mode === "scheduled"
     ? payload?.publishedAt
     : payload?.publishedAt || new Date().toISOString();
@@ -248,7 +312,7 @@ function documentFromPayload(payload) {
     _type: "post",
     title,
     slug: { _type: "slug", current: slug },
-    excerpt: String(payload?.excerpt || "").trim() || excerptFromText(bodyText),
+    excerpt: summaryFromText(title, bodyText),
     category: String(payload?.category || "").trim(),
     publishedAt,
     body,
@@ -263,7 +327,7 @@ function documentFromPayload(payload) {
     };
   }
 
-  return { document, slug };
+  return { document, draftIdToDelete, slug };
 }
 
 module.exports = async function handler(request, response) {
@@ -293,8 +357,10 @@ module.exports = async function handler(request, response) {
       return;
     }
 
-    const { document, slug } = documentFromPayload(payload);
-    const result = await sanityMutate([{ createOrReplace: document }]);
+    const { document, draftIdToDelete, slug } = documentFromPayload(payload);
+    const mutations = [{ createOrReplace: document }];
+    if (draftIdToDelete) mutations.push({ delete: { id: draftIdToDelete } });
+    const result = await sanityMutate(mutations);
     sendJson(response, 200, {
       ok: true,
       slug,

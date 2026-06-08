@@ -81,7 +81,7 @@
             </select>
           </label>
           <label>
-            Auto-generated excerpt
+            Generated summary
             <textarea name="excerpt" rows="3" readonly></textarea>
           </label>
           <label>
@@ -139,11 +139,12 @@
             </p>
           </div>
           <p class="fine-print">
-            The slug is created automatically from the title. The excerpt updates
-            from the post body as you write.
+            The slug is created automatically from the title. The summary is
+            generated from the post body before the post is saved.
           </p>
           <div class="admin-actions">
             <button class="button button-primary" type="submit">Save Blog Post</button>
+            <button class="button button-primary" id="post-now-button" type="button">Post Now</button>
             <button class="button button-secondary" id="new-post-button" type="button">New Post</button>
             <button class="button button-danger" id="delete-post-button" type="button">Delete Selected</button>
           </div>

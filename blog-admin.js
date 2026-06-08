@@ -3,6 +3,7 @@ const adminStatus = document.querySelector("#blog-admin-status");
 const postList = document.querySelector("#admin-post-list");
 const loadPostsButton = document.querySelector("#load-posts-button");
 const newPostButton = document.querySelector("#new-post-button");
+const postNowButton = document.querySelector("#post-now-button");
 const deletePostButton = document.querySelector("#delete-post-button");
 const featuredPreview = document.querySelector("#featured-image-preview");
 const inlinePreview = document.querySelector("#inline-media-preview");
@@ -53,6 +54,76 @@ function formatTimeInput(value) {
 
 function isFutureDate(value) {
   return value && new Date(value).getTime() > Date.now();
+}
+
+const summaryStopWords = new Set([
+  "about",
+  "after",
+  "also",
+  "because",
+  "been",
+  "before",
+  "being",
+  "care",
+  "from",
+  "have",
+  "into",
+  "more",
+  "most",
+  "post",
+  "that",
+  "their",
+  "there",
+  "these",
+  "this",
+  "through",
+  "with",
+  "your",
+]);
+
+function summaryTerms(value) {
+  const counts = new Map();
+  String(value || "")
+    .toLowerCase()
+    .match(/[a-z][a-z'-]{3,}/g)
+    ?.forEach((word) => {
+      const term = word.replace(/^'+|'+$/g, "");
+      if (summaryStopWords.has(term)) return;
+      counts.set(term, (counts.get(term) || 0) + 1);
+    });
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 4)
+    .map(([term]) => term);
+}
+
+function readableList(items) {
+  const cleanItems = items.filter(Boolean);
+  if (cleanItems.length <= 1) return cleanItems[0] || "";
+  if (cleanItems.length === 2) return `${cleanItems[0]} and ${cleanItems[1]}`;
+  return `${cleanItems.slice(0, -1).join(", ")}, and ${cleanItems.at(-1)}`;
+}
+
+function trimSummary(value) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (text.length <= 180) return text;
+  return `${text.slice(0, 177).replace(/\s+\S*$/, "").trim()}...`;
+}
+
+function generatedSummary(title, bodyText) {
+  const cleanTitle = String(title || "").replace(/[.!?]+$/g, "").trim();
+  const terms = summaryTerms(bodyText).filter((term) => !cleanTitle.toLowerCase().includes(term));
+  const topic = cleanTitle || readableList(terms.slice(0, 2)) || "the article";
+  const focus = readableList(terms.slice(0, 3));
+
+  if (!focus) {
+    return trimSummary(`A concise overview of ${topic} for readers seeking practical support.`);
+  }
+
+  return trimSummary(
+    `A concise overview of ${topic}, highlighting ${focus} for readers seeking practical support.`
+  );
 }
 
 function updateScheduleFields() {
@@ -348,9 +419,7 @@ function plainTextFromBlocks(blocks = []) {
 
 function generatedExcerpt() {
   const text = plainTextFromBlocks(blocksFromEditor());
-  if (text.length <= 180) return text;
-  const clipped = text.slice(0, 181);
-  return `${clipped.slice(0, clipped.lastIndexOf(" ") > 120 ? clipped.lastIndexOf(" ") : 180).trim()}...`;
+  return generatedSummary(adminForm.elements.title.value, text);
 }
 
 function updateGeneratedExcerpt() {
@@ -638,8 +707,8 @@ function applyEditorCommand(button) {
   updateGeneratedExcerpt();
 }
 
-async function savePost(event) {
-  event.preventDefault();
+async function savePost(event, options = {}) {
+  event?.preventDefault();
 
   const formData = new FormData(adminForm);
   if (!masterKey()) {
@@ -658,13 +727,15 @@ async function savePost(event) {
   try {
     setStatus("Preparing post.");
     const { mainImage } = await uploadSelectedMedia(formData);
-    const mode = String(formData.get("mode") || "draft");
+    const mode = options.modeOverride || String(formData.get("mode") || "draft");
+    const excerpt = generatedSummary(title, bodyText);
+    adminForm.elements.excerpt.value = excerpt;
     const payload = {
       id: String(formData.get("post_id") || ""),
       title,
       slug: slugify(title),
       category: String(formData.get("category") || "").trim(),
-      excerpt: generatedExcerpt(),
+      excerpt,
       body: bodyText,
       bodyBlocks,
       mode,
@@ -692,6 +763,14 @@ async function savePost(event) {
   } catch (error) {
     setStatus(error.message);
   }
+}
+
+async function postNow() {
+  adminForm.elements.mode.value = "published";
+  adminForm.elements.publish_date.value = "";
+  adminForm.elements.publish_time.value = "";
+  updateScheduleFields();
+  await savePost(null, { modeOverride: "published" });
 }
 
 async function deleteSelectedPost() {
@@ -730,6 +809,7 @@ async function deleteSelectedPost() {
 
 adminForm?.addEventListener("submit", savePost);
 adminForm?.elements.mode.addEventListener("change", updateScheduleFields);
+adminForm?.elements.title.addEventListener("input", updateGeneratedExcerpt);
 bodyEditor?.addEventListener("input", updateGeneratedExcerpt);
 bodyEditor?.addEventListener("keyup", rememberEditorSelection);
 bodyEditor?.addEventListener("mouseup", rememberEditorSelection);
@@ -740,6 +820,7 @@ document.querySelectorAll(".rich-editor-toolbar button").forEach((button) => {
 });
 loadPostsButton?.addEventListener("click", () => loadPosts().catch((error) => setStatus(error.message)));
 newPostButton?.addEventListener("click", () => resetEditor());
+postNowButton?.addEventListener("click", () => postNow().catch((error) => setStatus(error.message)));
 deletePostButton?.addEventListener("click", deleteSelectedPost);
 updateGeneratedExcerpt();
 updateScheduleFields();
