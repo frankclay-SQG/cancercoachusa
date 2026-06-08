@@ -976,6 +976,46 @@ h3 {
   font-size: 0.95rem;
 }
 
+.meetup-section {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.78fr) minmax(320px, 1fr);
+  gap: clamp(28px, 6vw, 76px);
+  align-items: center;
+  background: var(--pearl);
+}
+
+.meetup-copy {
+  display: grid;
+  gap: 14px;
+}
+
+.meetup-copy h2 {
+  margin-bottom: 4px;
+}
+
+.meetup-copy p:not(.eyebrow),
+.meetup-photo figcaption {
+  color: var(--graphite);
+}
+
+.meetup-photo {
+  margin: 0;
+}
+
+.meetup-photo img {
+  width: 100%;
+  min-height: 420px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  box-shadow: var(--shadow);
+}
+
+.meetup-photo figcaption {
+  margin-top: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
 .admin-hero {
   min-height: 44svh;
 }
@@ -1522,6 +1562,7 @@ textarea:focus {
   .blog-shell,
   .schedule-shell,
   .meetings-section,
+  .meetup-section,
   .meeting-plan {
     grid-template-columns: 1fr;
   }
