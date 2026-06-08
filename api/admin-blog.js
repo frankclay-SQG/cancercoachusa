@@ -70,6 +70,100 @@ function bodyPlainText(blocks = []) {
     .join("\n\n");
 }
 
+function excerptFromText(value) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (text.length <= 180) return text;
+  const clipped = text.slice(0, 181);
+  const breakAt = clipped.lastIndexOf(" ") > 120 ? clipped.lastIndexOf(" ") : 180;
+  return `${clipped.slice(0, breakAt).trim()}...`;
+}
+
+function uniqueKey(prefix, index) {
+  return `${prefix}${Date.now()}${index}`;
+}
+
+function normalizeMarkDefs(markDefs = []) {
+  return markDefs
+    .filter((definition) => definition?._type === "link" && definition._key && definition.href)
+    .map((definition) => ({
+      _key: String(definition._key),
+      _type: "link",
+      href: String(definition.href),
+    }));
+}
+
+function normalizeTextBlock(block, index) {
+  const allowedStyles = new Set(["normal", "h2", "h3", "blockquote"]);
+  const markDefs = normalizeMarkDefs(block.markDefs);
+  const allowedMarks = new Set(["strong", "em", "code", ...markDefs.map((definition) => definition._key)]);
+  const children = (block.children || [])
+    .filter((child) => child?._type === "span" && child.text)
+    .map((child, childIndex) => ({
+      _key: child._key || uniqueKey("s", `${index}${childIndex}`),
+      _type: "span",
+      marks: (child.marks || []).filter((mark) => allowedMarks.has(mark)),
+      text: String(child.text),
+    }));
+
+  if (!children.length) return null;
+
+  const normalized = {
+    _key: block._key || uniqueKey("b", index),
+    _type: "block",
+    style: allowedStyles.has(block.style) ? block.style : "normal",
+    markDefs,
+    children,
+  };
+
+  if (["bullet", "number"].includes(block.listItem)) {
+    normalized.listItem = block.listItem;
+    normalized.level = Number(block.level) > 0 ? Number(block.level) : 1;
+  }
+
+  return normalized;
+}
+
+function normalizeRichTextBlocks(blocks = []) {
+  return blocks
+    .map((block, index) => {
+      if (block?._type === "block") return normalizeTextBlock(block, index);
+
+      if (block?._type === "image" && block.asset?._ref) {
+        return {
+          _key: block._key || uniqueKey("img", index),
+          _type: "image",
+          alt: String(block.alt || ""),
+          caption: String(block.caption || ""),
+          asset: { _type: "reference", _ref: String(block.asset._ref) },
+        };
+      }
+
+      if (block?._type === "file" && block.asset?._ref) {
+        return {
+          _key: block._key || uniqueKey("file", index),
+          _type: "file",
+          title: String(block.title || "Download file"),
+          asset: { _type: "reference", _ref: String(block.asset._ref) },
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+}
+
+function portableTextFromPayload(payload) {
+  if (Array.isArray(payload?.bodyBlocks)) {
+    const blocks = normalizeRichTextBlocks(payload.bodyBlocks);
+    if (blocks.length) return blocks;
+  }
+
+  return [
+    ...portableTextFromPlainText(payload?.body),
+    ...mediaBlocksFromPayload(payload?.media),
+  ];
+}
+
 function validateMasterKey(request) {
   const configuredKey = process.env.BLOG_ADMIN_MASTER_KEY;
   const providedKey = getHeader(request, "x-blog-master-key");
@@ -128,7 +222,8 @@ async function listPosts(response) {
 
 function documentFromPayload(payload) {
   const title = String(payload?.title || "").trim();
-  const bodyText = String(payload?.body || "").trim();
+  const body = portableTextFromPayload(payload);
+  const bodyText = bodyPlainText(body) || String(payload?.body || "").trim();
   const slug = slugify(payload?.slug || title);
 
   if (!title || !slug || !bodyText) {
@@ -153,13 +248,10 @@ function documentFromPayload(payload) {
     _type: "post",
     title,
     slug: { _type: "slug", current: slug },
-    excerpt: String(payload?.excerpt || "").trim(),
+    excerpt: String(payload?.excerpt || "").trim() || excerptFromText(bodyText),
     category: String(payload?.category || "").trim(),
     publishedAt,
-    body: [
-      ...portableTextFromPlainText(bodyText),
-      ...mediaBlocksFromPayload(payload?.media),
-    ],
+    body,
   };
 
   if (payload?.mainImage?.assetId) {

@@ -1041,6 +1041,94 @@ h3 {
   width: min(760px, 100%);
 }
 
+.rich-editor-field {
+  display: grid;
+  gap: 8px;
+  color: var(--charcoal);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.rich-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: var(--mist);
+  border: 1px solid rgba(85, 91, 96, 0.18);
+  border-radius: var(--radius);
+}
+
+.rich-editor-toolbar button {
+  min-height: 34px;
+  padding: 7px 10px;
+  color: var(--charcoal);
+  background: var(--paper);
+  border: 1px solid rgba(85, 91, 96, 0.2);
+  border-radius: calc(var(--radius) - 2px);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rich-editor-toolbar button:hover,
+.rich-editor-toolbar button:focus-visible {
+  border-color: var(--sage);
+}
+
+.rich-editor {
+  min-height: 360px;
+  padding: 16px;
+  color: var(--ink);
+  background: var(--pearl);
+  border: 1px solid rgba(85, 91, 96, 0.24);
+  border-radius: var(--radius);
+  font-weight: 500;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+
+.rich-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--steel);
+  font-weight: 600;
+}
+
+.rich-editor:focus {
+  outline: 3px solid rgba(95, 117, 108, 0.24);
+  border-color: var(--sage);
+}
+
+.rich-editor h2,
+.rich-editor h3 {
+  margin: 18px 0 8px;
+}
+
+.rich-editor p,
+.rich-editor li {
+  font-size: 1rem;
+}
+
+.rich-editor figure {
+  margin: 22px 0;
+}
+
+.rich-editor img {
+  width: 100%;
+  max-height: 360px;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.rich-editor figcaption {
+  min-height: 28px;
+  margin-top: 8px;
+  color: var(--steel);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
 .admin-actions {
   display: flex;
   flex-wrap: wrap;

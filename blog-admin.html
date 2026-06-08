@@ -70,10 +70,6 @@
             <input name="title" type="text" required>
           </label>
           <label>
-            Slug
-            <input name="slug" type="text" placeholder="auto-generated if left blank">
-          </label>
-          <label>
             Category
             <select name="category">
               <option value="">Choose one</option>
@@ -85,21 +81,40 @@
             </select>
           </label>
           <label>
-            Excerpt
-            <textarea name="excerpt" rows="3"></textarea>
+            Auto-generated excerpt
+            <textarea name="excerpt" rows="3" readonly></textarea>
           </label>
           <label>
             Featured image
             <input name="featured_image" type="file" accept="image/*">
           </label>
           <div id="featured-image-preview" class="media-preview"></div>
+          <div class="rich-editor-field">
+            <span>Body</span>
+            <div class="rich-editor-toolbar" aria-label="Text formatting controls">
+              <button type="button" data-command="formatBlock" data-value="p">P</button>
+              <button type="button" data-command="formatBlock" data-value="h2">H2</button>
+              <button type="button" data-command="formatBlock" data-value="h3">H3</button>
+              <button type="button" data-command="bold">B</button>
+              <button type="button" data-command="italic">I</button>
+              <button type="button" data-command="insertUnorderedList">List</button>
+              <button type="button" data-command="insertOrderedList">1. List</button>
+              <button type="button" data-command="formatBlock" data-value="blockquote">Quote</button>
+              <button type="button" data-command="createLink">Link</button>
+            </div>
+            <div
+              class="rich-editor"
+              id="blog-body-editor"
+              contenteditable="true"
+              role="textbox"
+              aria-multiline="true"
+              aria-label="Blog post body"
+              data-placeholder="Write the blog post here."
+            ></div>
+          </div>
           <label>
-            Body
-            <textarea name="body" rows="12" required></textarea>
-          </label>
-          <label>
-            Inline media uploads
-            <input name="inline_media" type="file" multiple accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt">
+            Insert inline pictures
+            <input id="inline-image-input" name="inline_media" type="file" multiple accept="image/*">
           </label>
           <div id="inline-media-preview" class="media-preview"></div>
           <label>
@@ -124,9 +139,8 @@
             </p>
           </div>
           <p class="fine-print">
-            Separate paragraphs with a blank line. Uploaded inline media is appended
-            after the text body. Use Sanity Studio for detailed placement and rich
-            formatting refinements.
+            The slug is created automatically from the title. The excerpt updates
+            from the post body as you write.
           </p>
           <div class="admin-actions">
             <button class="button button-primary" type="submit">Save Blog Post</button>
