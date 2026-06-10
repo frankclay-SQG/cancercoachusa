@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Cancer Coach USA Meetup group information for cancer survivors and their care takers."
+      content="Cancer Survivors Podcast from Cancer Coach USA, with the latest public TikTok podcast posts and a link to the podcast profile."
     >
-    <title>Meetup | Cancer Coach USA</title>
+    <title>Podcast | Cancer Coach USA</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,9 +27,9 @@
         <a href="index.html#pathway">Pathway</a>
         <a href="pillars.html">Five Pillars</a>
         <a href="blog.html">Blog</a>
-        <a href="podcast.html">Podcast</a>
+        <a href="podcast.html" aria-current="page">Podcast</a>
         <a href="meetings.html">Meetings</a>
-        <a href="meetup.html" aria-current="page">Meetup</a>
+        <a href="meetup.html">Meetup</a>
         <a href="schedule.html">Schedule</a>
         <a href="index.html#resources">Resources</a>
         <a href="index.html#contact">Contact</a>
@@ -46,60 +46,88 @@
       <span>Pages</span>
       <a href="pillars.html">Five Pillars</a>
       <a href="blog.html">Blog</a>
-      <a href="podcast.html">Podcast</a>
+      <a href="podcast.html" aria-current="page">Podcast</a>
       <a href="meetings.html">Meetings</a>
-      <a href="meetup.html" aria-current="page">Meetup</a>
+      <a href="meetup.html">Meetup</a>
       <a href="schedule.html">Schedule</a>
     </nav>
 
     <main id="top">
-      <section class="page-hero" aria-labelledby="meetup-title">
+      <section class="page-hero" aria-labelledby="podcast-title">
         <div>
-          <p class="eyebrow">Survivorship community</p>
-          <h1 id="meetup-title">Cancer Coach USA Meetup</h1>
+          <p class="eyebrow">Cancer Survivors Podcast</p>
+          <h1 id="podcast-title">Latest Podcast</h1>
           <p class="page-hero-copy">
-            Join the I Beat Cancer, Now What? Meetup Group for community
-            conversations centered on life after cancer.
+            Listen in on survivorship conversations from Cancer Coach USA,
+            shared through the Spilling the Tea Podcast on TikTok.
           </p>
         </div>
       </section>
 
-      <section class="section meetup-section">
-        <div class="meetup-copy">
-          <p class="eyebrow">Meetup group</p>
-          <h2>A place for survivors and care takers to connect.</h2>
+      <section class="section podcast-section">
+        <div class="podcast-copy">
+          <p class="eyebrow">Most recent on TikTok</p>
+          <h2>Spilling the Tea Podcast</h2>
           <p>
-            The Cancer Coach USA Meetup group is for cancer survivors and their
-            care takers who want a supportive place to connect, share stories,
-            and find encouragement after treatment.
+            The live TikTok interface below loads the latest public podcast
+            posts from Cancer Coach USA. TikTok handles the current post list,
+            playback, and any app-specific viewing options.
           </p>
           <p>
-            Sign up and event registration are handled directly on Meetup. Visit
-            the group page to join, see upcoming gatherings, and RSVP for events.
+            The podcast profile describes Cancer Coach USA as a brain-cancer
+            survivor, author, educator, and Spilling the Tea Podcast creator.
           </p>
           <div class="meeting-actions">
             <a
               class="button button-primary"
-              href="https://www.meetup.com/i-beat-cancer-now-what-meetup-group/"
+              href="https://www.tiktok.com/@cancercoach_usa"
               rel="noopener"
             >
-              Visit Meetup Group
+              Open Podcast Page
             </a>
-            <a class="button button-secondary" href="meetings.html">View Meetings</a>
+            <a class="button button-secondary" href="blog.html">Read the Blog</a>
           </div>
         </div>
 
-        <figure class="meetup-photo">
-          <img
-            src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1100&q=82"
-            alt="People gathered together in a friendly community setting"
-            loading="lazy"
-            decoding="async"
-          >
-          <figcaption>
-            Community support for the questions that come after cancer treatment.
-          </figcaption>
-        </figure>
+        <div class="podcast-interface" aria-label="Cancer Survivors Podcast interface">
+          <div class="podcast-embed">
+            <blockquote
+              class="tiktok-embed"
+              cite="https://www.tiktok.com/@cancercoach_usa"
+              data-unique-id="cancercoach_usa"
+              data-embed-from="oembed"
+              data-embed-type="creator"
+            >
+              <section>
+                <a
+                  target="_blank"
+                  href="https://www.tiktok.com/@cancercoach_usa?refer=creator_embed"
+                  rel="noopener"
+                >
+                  @cancercoach_usa
+                </a>
+              </section>
+            </blockquote>
+            <noscript>
+              <p>
+                TikTok embeds require JavaScript. Open the podcast profile at
+                <a href="https://www.tiktok.com/@cancercoach_usa" rel="noopener">
+                  @cancercoach_usa
+                </a>.
+              </p>
+            </noscript>
+          </div>
+
+          <figure class="podcast-logo-panel">
+            <img
+              src="assets/cancer-survivors-podcast-logo.png"
+              alt="Cancer Survivors Podcast logo with microphone and awareness ribbons"
+              loading="lazy"
+              decoding="async"
+            >
+            <figcaption>Cancer Survivors Podcast</figcaption>
+          </figure>
+        </div>
       </section>
     </main>
 
@@ -121,6 +149,7 @@
       </p>
     </footer>
 
+    <script async src="https://www.tiktok.com/embed.js"></script>
     <script src="site.js"></script>
   </body>
 </html>
