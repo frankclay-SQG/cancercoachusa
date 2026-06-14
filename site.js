@@ -1,5 +1,4 @@
 const COOKIE_CONSENT_KEY = "ccusa_cookie_consent";
-const CONSTRUCTION_DISMISSED_KEY = "ccusa_under_construction_dismissed";
 
 function readConsent() {
   try {
@@ -61,27 +60,17 @@ function renderCookieBanner(options = {}) {
       </p>
     </div>
     <div class="cookie-consent-actions">
-      <button class="button button-primary" type="button" data-cookie-action="accept-all">Accept All</button>
-      <button class="button button-secondary" type="button" data-cookie-action="essentials">Essentials Only</button>
-      <button class="button button-secondary" type="button" data-cookie-action="manage">Manage Choices</button>
+      <button type="button" data-cookie-action="accept-all">Accept All</button>
+      <button type="button" data-cookie-action="essentials">Essentials Only</button>
+      <button type="button" data-cookie-action="manage">Manage Choices</button>
     </div>
     <form class="cookie-preferences" hidden>
-      <label class="check-label">
-        <input type="checkbox" checked disabled>
-        <span>Essential cookies, always active for basic site function.</span>
-      </label>
-      <label class="check-label">
-        <input name="analytics" type="checkbox">
-        <span>Analytics cookies to understand page usage.</span>
-      </label>
-      <label class="check-label">
-        <input name="marketing" type="checkbox">
-        <span>Communication cookies to improve outreach and campaign relevance.</span>
-      </label>
-      <button class="button button-primary" type="submit">Save Choices</button>
+      <label><input type="checkbox" checked disabled> Essential cookies, always active for basic site function.</label>
+      <label><input name="analytics" type="checkbox"> Analytics cookies to understand page usage.</label>
+      <label><input name="marketing" type="checkbox"> Communication cookies to improve outreach and campaign relevance.</label>
+      <button type="submit">Save Choices</button>
     </form>
   `;
-
   document.body.append(banner);
 
   const preferences = banner.querySelector(".cookie-preferences");
@@ -96,17 +85,14 @@ function renderCookieBanner(options = {}) {
     closeCookieBanner();
     renderCookieSettingsButton();
   });
-
   banner.querySelector('[data-cookie-action="essentials"]').addEventListener("click", () => {
     saveConsent({ analytics: false, marketing: false });
     closeCookieBanner();
     renderCookieSettingsButton();
   });
-
   banner.querySelector('[data-cookie-action="manage"]').addEventListener("click", () => {
     preferences.hidden = !preferences.hidden;
   });
-
   preferences.addEventListener("submit", (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -119,46 +105,6 @@ function renderCookieBanner(options = {}) {
   });
 }
 
-function renderConstructionDialog() {
-  const path = window.location.pathname || "";
-  if (path.endsWith("blog-admin.html")) return;
-  if (localStorage.getItem(CONSTRUCTION_DISMISSED_KEY)) return;
-
-  const dialog = document.createElement("dialog");
-  dialog.className = "construction-dialog";
-  dialog.setAttribute("aria-labelledby", "construction-title");
-  dialog.innerHTML = `
-    <div class="construction-dialog-body">
-      <p class="eyebrow">Site notice</p>
-      <h2 id="construction-title">Under Construction</h2>
-      <p>
-        Cancer Coach USA is still being refined for survivors in remission and
-        families navigating life after active treatment. Content, blog posts,
-        scheduling, and resource links may change as the site is prepared for launch.
-      </p>
-      <button class="button button-primary" type="button">Continue to Site</button>
-    </div>
-  `;
-
-  document.body.append(dialog);
-
-  const dismiss = () => {
-    localStorage.setItem(CONSTRUCTION_DISMISSED_KEY, "true");
-    if (dialog.open) dialog.close();
-    dialog.remove();
-  };
-
-  dialog.querySelector("button").addEventListener("click", dismiss);
-  dialog.addEventListener("cancel", dismiss);
-
-  if (typeof dialog.showModal === "function") {
-    dialog.showModal();
-  } else {
-    dialog.setAttribute("open", "");
-  }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-  renderConstructionDialog();
   renderCookieBanner();
 });
