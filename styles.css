@@ -1485,37 +1485,6 @@ textarea:focus {
   cursor: pointer;
 }
 
-.construction-dialog {
-  width: min(520px, calc(100vw - 32px));
-  padding: 0;
-  color: var(--ink);
-  background: var(--paper);
-  border: 1px solid rgba(85, 91, 96, 0.22);
-  border-radius: var(--radius);
-  box-shadow: 0 28px 86px rgba(23, 25, 27, 0.3);
-}
-
-.construction-dialog::backdrop {
-  background: rgba(23, 25, 27, 0.44);
-  backdrop-filter: blur(4px);
-}
-
-.construction-dialog-body {
-  display: grid;
-  gap: 14px;
-  padding: clamp(24px, 5vw, 36px);
-}
-
-.construction-dialog h2 {
-  margin-bottom: 0;
-  font-size: clamp(2rem, 5vw, 3.4rem);
-}
-
-.construction-dialog p:not(.eyebrow) {
-  margin-bottom: 4px;
-  color: var(--graphite);
-}
-
 .site-footer {
   display: grid;
   gap: 16px;
