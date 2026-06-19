@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Admin | Cancer Coach USA</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header" aria-label="Primary">
+      <a class="brand" href="index.html#top" aria-label="Cancer Coach USA home">
+        <span>Cancer Coach USA</span>
+      </a>
+      <a class="nav-cta" href="index.html#top">View Site</a>
+    </header>
+
+    <nav class="top-page-nav" aria-label="Private admin navigation">
+      <span>Private</span>
+      <a href="admin.html" aria-current="page">Admin</a>
+      <a href="blog-admin.html">Blog Admin</a>
+    </nav>
+
+    <main id="top">
+      <section class="page-hero admin-hero" aria-labelledby="admin-home-title">
+        <div>
+          <p class="eyebrow">Private tools</p>
+          <h1 id="admin-home-title">Admin</h1>
+          <p class="page-hero-copy">
+            Sign in once with the master key to open private reporting and
+            publishing tools without remembering hidden page URLs.
+          </p>
+        </div>
+      </section>
+
+      <section class="section admin-section">
+        <form class="contact-form admin-form" id="admin-login-form">
+          <div>
+            <p class="eyebrow">Admin login</p>
+            <h2>Open private tools.</h2>
+          </div>
+          <label>
+            Master key
+            <input name="master_key" type="password" autocomplete="current-password" required>
+          </label>
+          <div class="admin-login-actions">
+            <button class="button button-primary" name="destination" value="analytics" type="submit">Open Analytics</button>
+            <button class="button button-secondary" name="destination" value="hub" type="submit">Admin Hub</button>
+          </div>
+          <p class="form-status" id="admin-login-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <section class="admin-tools-panel" id="admin-tools-panel" aria-labelledby="admin-tools-title" hidden>
+          <div>
+            <p class="eyebrow">Private workspace</p>
+            <h2 id="admin-tools-title">Choose a tool.</h2>
+          </div>
+          <div class="admin-tool-grid">
+            <a class="admin-tool-card" href="analytics.html">
+              <span>Reporting</span>
+              <strong>Site Analytics</strong>
+              <p>Review site KPIs, visitor activity, top actions, exports, and PDF-ready summaries.</p>
+            </a>
+            <a class="admin-tool-card" href="blog-admin.html">
+              <span>Publishing</span>
+              <strong>Blog Admin</strong>
+              <p>Create, edit, schedule, and manage survivorship articles with the master key.</p>
+            </a>
+          </div>
+          <button class="button button-secondary" id="admin-logout-button" type="button">Log Out</button>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-meta">
+        <span>Cancer Coach USA</span>
+        <span>Private admin access</span>
+      </div>
+      <p class="footer-disclaimer">
+        Keep this page and master key private. For stronger protection, enable
+        deployment-level authentication before connecting live analytics data.
+      </p>
+    </footer>
+
+    <script src="site.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>

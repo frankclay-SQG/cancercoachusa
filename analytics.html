@@ -72,25 +72,28 @@
             <p class="eyebrow">Dashboard</p>
             <h2 id="analytics-dashboard-title">Performance snapshot.</h2>
           </div>
-          <div class="analytics-controls">
-            <label>
-              Date range
-              <select id="analytics-range">
-                <option value="7">Last 7 days</option>
-                <option value="30" selected>Last 30 days</option>
-                <option value="90">Last 90 days</option>
-              </select>
-            </label>
-            <label>
-              Audience
-              <select id="analytics-segment">
-                <option value="all" selected>All visitors</option>
-                <option value="Survivor">Survivors</option>
-                <option value="Caregiver">Caregivers</option>
-                <option value="Clinician">Clinicians</option>
-                <option value="Community partner">Community partners</option>
-              </select>
-            </label>
+          <div class="analytics-control-stack">
+            <div class="analytics-controls">
+              <label>
+                Date range
+                <select id="analytics-range">
+                  <option value="7">Last 7 days</option>
+                  <option value="30" selected>Last 30 days</option>
+                  <option value="90">Last 90 days</option>
+                </select>
+              </label>
+              <label>
+                Audience
+                <select id="analytics-segment">
+                  <option value="all" selected>All visitors</option>
+                  <option value="Survivor">Survivors</option>
+                  <option value="Caregiver">Caregivers</option>
+                  <option value="Clinician">Clinicians</option>
+                  <option value="Community partner">Community partners</option>
+                </select>
+              </label>
+            </div>
+            <button class="button button-secondary" id="analytics-pdf-export" type="button">Export PDF</button>
           </div>
         </div>
 

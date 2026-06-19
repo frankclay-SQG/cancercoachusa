@@ -1,3 +1,27 @@
+const ADMIN_SESSION_KEY = "ccusa_admin_verified";
+const ADMIN_SESSION_DURATION = 8 * 60 * 60 * 1000;
+
+function hasAdminSession() {
+  try {
+    const session = JSON.parse(sessionStorage.getItem(ADMIN_SESSION_KEY) || "null");
+    if (!session?.verifiedAt) return false;
+
+    const age = Date.now() - new Date(session.verifiedAt).getTime();
+    if (age > ADMIN_SESSION_DURATION) {
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+if (window.location.protocol !== "file:" && !hasAdminSession()) {
+  window.location.replace("admin.html?next=analytics");
+}
+
 const analyticsRange = document.querySelector("#analytics-range");
 const analyticsSegment = document.querySelector("#analytics-segment");
 const kpiGrid = document.querySelector("#kpi-grid");
@@ -10,6 +34,7 @@ const engagementRate = document.querySelector("#engagement-rate");
 const visitorTableBody = document.querySelector("#visitor-table-body");
 const reportSummary = document.querySelector("#report-summary");
 const exportButton = document.querySelector("#analytics-export");
+const pdfExportButton = document.querySelector("#analytics-pdf-export");
 const copySummaryButton = document.querySelector("#copy-summary");
 
 const reportNow = new Date("2026-06-19T12:00:00-04:00");
@@ -437,6 +462,11 @@ function downloadCsv(visits) {
   URL.revokeObjectURL(url);
 }
 
+function exportPdf() {
+  document.body.classList.add("analytics-printing");
+  window.print();
+}
+
 async function copySummary(visits) {
   const text = summaryLines(visits).join("\n");
   await navigator.clipboard.writeText(text);
@@ -459,10 +489,15 @@ function renderDashboard() {
 analyticsRange?.addEventListener("change", renderDashboard);
 analyticsSegment?.addEventListener("change", renderDashboard);
 exportButton?.addEventListener("click", () => downloadCsv(filteredVisits()));
+pdfExportButton?.addEventListener("click", exportPdf);
 copySummaryButton?.addEventListener("click", () => {
   copySummary(filteredVisits()).catch(() => {
     copySummaryButton.textContent = "Copy unavailable";
   });
+});
+
+window.addEventListener("afterprint", () => {
+  document.body.classList.remove("analytics-printing");
 });
 
 renderDashboard();
