@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta
+      name="description"
+      content="Cancer Coach USA site analytics dashboard for reporting visitor behavior and KPIs."
+    >
+    <title>Analytics | Cancer Coach USA</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header" aria-label="Primary">
+      <a class="brand" href="index.html#top" aria-label="Cancer Coach USA home">
+        <span>Cancer Coach USA</span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html#support">Support</a>
+        <a href="index.html#pathway">Pathway</a>
+        <a href="pillars.html">Five Pillars</a>
+        <a href="blog.html">Blog</a>
+        <a href="podcast.html">Podcast</a>
+        <a href="meetings.html">Meetings</a>
+        <a href="meetup.html">Meetup</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="analytics.html" aria-current="page">Analytics</a>
+        <a href="index.html#resources">Resources</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+      <a class="nav-cta" href="index.html#contact">Request Guidance</a>
+    </header>
+
+    <nav class="top-page-nav" aria-label="Section and page navigation">
+      <span>Sections</span>
+      <a href="index.html#support">Support</a>
+      <a href="index.html#pathway">Pathway</a>
+      <a href="index.html#resources">Resources</a>
+      <a href="index.html#contact">Contact</a>
+      <span>Pages</span>
+      <a href="pillars.html">Five Pillars</a>
+      <a href="blog.html">Blog</a>
+      <a href="podcast.html">Podcast</a>
+      <a href="meetings.html">Meetings</a>
+      <a href="meetup.html">Meetup</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="analytics.html" aria-current="page">Analytics</a>
+    </nav>
+
+    <main id="top">
+      <section class="page-hero analytics-hero" aria-labelledby="analytics-title">
+        <div>
+          <p class="eyebrow">KPI reporting</p>
+          <h1 id="analytics-title">Site Analytics</h1>
+          <p class="page-hero-copy">
+            A reporting workspace for understanding who visited Cancer Coach USA,
+            what they viewed, and which actions turned into measurable interest.
+          </p>
+        </div>
+      </section>
+
+      <section class="section analytics-section" aria-labelledby="analytics-dashboard-title">
+        <div class="analytics-toolbar" aria-label="Analytics filters">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h2 id="analytics-dashboard-title">Performance snapshot.</h2>
+          </div>
+          <div class="analytics-controls">
+            <label>
+              Date range
+              <select id="analytics-range">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select>
+            </label>
+            <label>
+              Audience
+              <select id="analytics-segment">
+                <option value="all" selected>All visitors</option>
+                <option value="Survivor">Survivors</option>
+                <option value="Caregiver">Caregivers</option>
+                <option value="Clinician">Clinicians</option>
+                <option value="Community partner">Community partners</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="analytics-status" role="status" aria-live="polite">
+          <span id="analytics-source-label">Demo analytics dataset</span>
+          <span id="analytics-updated-label">Updated Jun 19, 2026</span>
+        </div>
+
+        <div class="kpi-grid" id="kpi-grid" aria-label="Key performance indicators"></div>
+
+        <div class="analytics-grid">
+          <section class="analytics-panel" aria-labelledby="source-title">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Acquisition</p>
+                <h3 id="source-title">Traffic Sources</h3>
+              </div>
+              <span id="source-total" class="metric-badge">0 visits</span>
+            </div>
+            <div class="bar-list" id="source-chart"></div>
+          </section>
+
+          <section class="analytics-panel" aria-labelledby="intent-title">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Audience</p>
+                <h3 id="intent-title">Visitor Intent</h3>
+              </div>
+              <span id="known-visitor-rate" class="metric-badge">0% known</span>
+            </div>
+            <div class="intent-list" id="intent-list"></div>
+          </section>
+
+          <section class="analytics-panel analytics-panel-wide" aria-labelledby="content-title">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Engagement</p>
+                <h3 id="content-title">Top Pages And Actions</h3>
+              </div>
+              <span id="engagement-rate" class="metric-badge">0% engaged</span>
+            </div>
+            <div class="content-performance" id="content-performance"></div>
+          </section>
+        </div>
+
+        <section class="analytics-panel visitor-panel" aria-labelledby="visitor-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Visitor activity</p>
+              <h3 id="visitor-title">Who Came And What They Did</h3>
+            </div>
+            <button class="button button-secondary" id="analytics-export" type="button">Download CSV</button>
+          </div>
+          <div class="visitor-table-wrap">
+            <table class="visitor-table">
+              <thead>
+                <tr>
+                  <th scope="col">Visitor</th>
+                  <th scope="col">Audience</th>
+                  <th scope="col">Source</th>
+                  <th scope="col">Pages</th>
+                  <th scope="col">Key action</th>
+                  <th scope="col">Outcome</th>
+                  <th scope="col">Last seen</th>
+                </tr>
+              </thead>
+              <tbody id="visitor-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="analytics-report" aria-labelledby="report-title">
+          <div>
+            <p class="eyebrow">Report copy</p>
+            <h2 id="report-title">KPI summary for stakeholders.</h2>
+          </div>
+          <div class="report-card">
+            <ul id="report-summary"></ul>
+            <button class="button button-primary" id="copy-summary" type="button">Copy Summary</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-meta">
+        <span>Cancer Coach USA</span>
+        <span>Grey ribbon awareness for cancer</span>
+      </div>
+      <nav class="footer-links" aria-label="Legal links">
+        <a href="terms.html">Terms of Service</a>
+        <a href="privacy.html">Privacy Policy</a>
+      </nav>
+      <p class="footer-disclaimer">
+        Medical disclaimer: Cancer Coach USA does not provide medical advice,
+        diagnosis, or treatment. Information and coaching are for general
+        support and education only and are not a substitute for care from a
+        qualified medical professional. Always consult your physician or care
+        team with medical questions.
+      </p>
+    </footer>
+
+    <script src="site.js"></script>
+    <script src="analytics.js"></script>
+  </body>
+</html>
