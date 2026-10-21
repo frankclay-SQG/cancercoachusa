@@ -3,6 +3,7 @@ const statusMessage = document.querySelector("#form-status");
 const bookReleasePopup = document.querySelector("#book-release-popup");
 const bookReleaseCard = bookReleasePopup?.querySelector(".book-release-card");
 let bookPopupPreviousFocus = null;
+const formLoadedAt = Date.now();
 
 function closeBookReleasePopup() {
   if (!bookReleasePopup || bookReleasePopup.hidden) return;
@@ -67,6 +68,7 @@ form?.addEventListener("submit", (event) => {
   const emailOptIn = formData.get("email_opt_in") === "on";
   const smsOptIn = formData.get("sms_opt_in") === "on";
   const message = String(formData.get("message") || "").trim();
+  const website = String(formData.get("website") || "");
 
   if (!name || !email || !phone || !role || !preferredChannel || !message) {
     statusMessage.textContent = "Please complete all required fields before submitting.";
@@ -95,6 +97,8 @@ form?.addEventListener("submit", (event) => {
       message,
       pageUrl: window.location.href,
       consentText,
+      website,
+      formElapsedMs: Date.now() - formLoadedAt,
     }),
   })
     .then(async (response) => {

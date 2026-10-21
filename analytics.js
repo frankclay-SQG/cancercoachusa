@@ -37,182 +37,24 @@ const exportButton = document.querySelector("#analytics-export");
 const pdfExportButton = document.querySelector("#analytics-pdf-export");
 const copySummaryButton = document.querySelector("#copy-summary");
 
-const reportNow = new Date("2026-06-19T12:00:00-04:00");
+const reportNow = new Date();
+const sourceLabel = document.querySelector("#analytics-source-label");
+const updatedLabel = document.querySelector("#analytics-updated-label");
 
-const demoAnalytics = [
-  {
-    id: "v-1001",
-    name: "M. Alvarez",
-    audience: "Survivor",
-    source: "Google Search",
-    location: "Tampa, FL",
-    date: "2026-06-19T09:42:00-04:00",
-    pages: ["Home", "Five Pillars", "Schedule"],
-    actions: ["Clicked Schedule", "Submitted guidance request"],
-    outcome: "New guidance request",
-    duration: 418,
-    returning: true,
-    consented: true,
-  },
-  {
-    id: "v-1002",
-    name: "Anonymous visitor",
-    audience: "Caregiver",
-    source: "Facebook",
-    location: "Atlanta, GA",
-    date: "2026-06-18T16:20:00-04:00",
-    pages: ["Home", "Caregiver Transition", "Blog"],
-    actions: ["Read blog post", "Opened contact form"],
-    outcome: "Contact form started",
-    duration: 292,
-    returning: false,
-    consented: false,
-  },
-  {
-    id: "v-1003",
-    name: "R. Chen",
-    audience: "Clinician",
-    source: "Direct",
-    location: "New York, NY",
-    date: "2026-06-17T11:03:00-04:00",
-    pages: ["Home", "Meetings", "Meetup"],
-    actions: ["Viewed meeting plan", "Copied meetup link"],
-    outcome: "Community referral",
-    duration: 355,
-    returning: true,
-    consented: true,
-  },
-  {
-    id: "v-1004",
-    name: "Anonymous visitor",
-    audience: "Survivor",
-    source: "Organic Social",
-    location: "Charlotte, NC",
-    date: "2026-06-15T20:15:00-04:00",
-    pages: ["Home", "Five Pillars", "Follow-Up Prep"],
-    actions: ["Downloaded resource checklist"],
-    outcome: "Resource download",
-    duration: 241,
-    returning: false,
-    consented: false,
-  },
-  {
-    id: "v-1005",
-    name: "J. Morgan",
-    audience: "Caregiver",
-    source: "Email",
-    location: "Orlando, FL",
-    date: "2026-06-14T08:54:00-04:00",
-    pages: ["Home", "Blog", "Schedule"],
-    actions: ["Clicked Schedule", "Submitted guidance request"],
-    outcome: "New guidance request",
-    duration: 506,
-    returning: true,
-    consented: true,
-  },
-  {
-    id: "v-1006",
-    name: "Anonymous visitor",
-    audience: "Community partner",
-    source: "LinkedIn",
-    location: "Raleigh, NC",
-    date: "2026-06-12T13:31:00-04:00",
-    pages: ["Home", "Meetup", "Contact"],
-    actions: ["Viewed meetup details", "Clicked email link"],
-    outcome: "Partner inquiry",
-    duration: 188,
-    returning: false,
-    consented: false,
-  },
-  {
-    id: "v-1007",
-    name: "T. Wallace",
-    audience: "Survivor",
-    source: "Google Search",
-    location: "Savannah, GA",
-    date: "2026-06-09T10:42:00-04:00",
-    pages: ["Home", "Blog", "Life Planning"],
-    actions: ["Read blog post", "Saved article"],
-    outcome: "Content engagement",
-    duration: 337,
-    returning: true,
-    consented: true,
-  },
-  {
-    id: "v-1008",
-    name: "Anonymous visitor",
-    audience: "Caregiver",
-    source: "Google Search",
-    location: "Nashville, TN",
-    date: "2026-06-05T19:06:00-04:00",
-    pages: ["Home", "Five Pillars", "Contact"],
-    actions: ["Opened contact form"],
-    outcome: "Contact form started",
-    duration: 226,
-    returning: false,
-    consented: false,
-  },
-  {
-    id: "v-1009",
-    name: "D. Patel",
-    audience: "Clinician",
-    source: "Referral",
-    location: "Jacksonville, FL",
-    date: "2026-05-31T14:22:00-04:00",
-    pages: ["Home", "Podcast", "Meetings"],
-    actions: ["Played podcast", "Viewed meetings"],
-    outcome: "Clinical referral",
-    duration: 402,
-    returning: true,
-    consented: true,
-  },
-  {
-    id: "v-1010",
-    name: "Anonymous visitor",
-    audience: "Survivor",
-    source: "Direct",
-    location: "Columbia, SC",
-    date: "2026-05-25T07:48:00-04:00",
-    pages: ["Home", "Schedule"],
-    actions: ["Clicked Schedule"],
-    outcome: "Schedule intent",
-    duration: 173,
-    returning: false,
-    consented: false,
-  },
-  {
-    id: "v-1011",
-    name: "A. Brooks",
-    audience: "Community partner",
-    source: "Email",
-    location: "Miami, FL",
-    date: "2026-05-17T15:17:00-04:00",
-    pages: ["Home", "Meetup", "Contact"],
-    actions: ["Submitted guidance request"],
-    outcome: "Partner inquiry",
-    duration: 384,
-    returning: true,
-    consented: true,
-  },
-  {
-    id: "v-1012",
-    name: "Anonymous visitor",
-    audience: "Caregiver",
-    source: "Facebook",
-    location: "Richmond, VA",
-    date: "2026-04-22T18:44:00-04:00",
-    pages: ["Home", "Caregiver Transition", "Blog"],
-    actions: ["Read blog post"],
-    outcome: "Content engagement",
-    duration: 219,
-    returning: false,
-    consented: false,
-  },
-];
+// Real visit data must be supplied by a connected analytics source as
+// window.CCUSA_ANALYTICS_DATA. There is intentionally no sample fallback, so
+// the dashboard never presents invented visitors as real traffic.
+const hasConnectedData = Array.isArray(window.CCUSA_ANALYTICS_DATA);
+const analyticsData = hasConnectedData ? window.CCUSA_ANALYTICS_DATA : [];
 
-const analyticsData = Array.isArray(window.CCUSA_ANALYTICS_DATA)
-  ? window.CCUSA_ANALYTICS_DATA
-  : demoAnalytics;
+if (sourceLabel) {
+  sourceLabel.textContent = hasConnectedData ? "Connected analytics source" : "No analytics source connected";
+}
+if (updatedLabel) {
+  updatedLabel.textContent = hasConnectedData
+    ? `Updated ${new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(reportNow)}`
+    : "No data yet";
+}
 
 function escapeHtml(value) {
   return String(value || "")
@@ -386,6 +228,15 @@ function renderContent(visits) {
 }
 
 function renderVisitors(visits) {
+  if (!visits.length) {
+    visitorTableBody.innerHTML = `<tr><td colspan="7">${
+      hasConnectedData
+        ? "No visits in the selected period."
+        : "No analytics source is connected yet, so there are no visits to show."
+    }</td></tr>`;
+    return;
+  }
+
   visitorTableBody.innerHTML = visits
     .map((visit) => {
       const visitorName = visit.consented ? visit.name : "Anonymous visitor";
@@ -412,6 +263,13 @@ function renderVisitors(visits) {
 
 function summaryLines(visits) {
   const total = visits.length;
+  if (!total) {
+    return [
+      hasConnectedData
+        ? "No site visits were captured in the selected period."
+        : "No analytics source is connected yet, so there is nothing to report.",
+    ];
+  }
   const requests = visits.filter((visit) => visit.outcome.includes("guidance request")).length;
   const topSource = topEntries(countBy(visits, (visit) => visit.source), 1)[0]?.[0] || "No source";
   const topAudience = topEntries(countBy(visits, (visit) => visit.audience), 1)[0]?.[0] || "No audience";

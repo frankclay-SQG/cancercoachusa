@@ -1,27 +1,5 @@
+const { getHeader, validateMasterKey } = require("./lib/security");
 const { handleError, sanityUploadAsset, sendJson } = require("./lib/sanity");
-
-function getHeader(request, name) {
-  const headers = request.headers || {};
-  const lowerName = name.toLowerCase();
-  return headers[name] || headers[lowerName] || headers[Object.keys(headers).find((key) => key.toLowerCase() === lowerName)];
-}
-
-function validateMasterKey(request) {
-  const configuredKey = process.env.BLOG_ADMIN_MASTER_KEY;
-  const providedKey = getHeader(request, "x-blog-master-key");
-
-  if (!configuredKey) {
-    const error = new Error("Missing BLOG_ADMIN_MASTER_KEY");
-    error.statusCode = 500;
-    throw error;
-  }
-
-  if (!providedKey || providedKey !== configuredKey) {
-    const error = new Error("Invalid blog master key");
-    error.statusCode = 401;
-    throw error;
-  }
-}
 
 function readStream(request) {
   return new Promise((resolve, reject) => {

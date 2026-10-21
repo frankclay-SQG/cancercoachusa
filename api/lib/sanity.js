@@ -124,10 +124,17 @@ async function sanityUploadAsset({ buffer, filename, contentType }) {
 }
 
 function handleError(response, error) {
-  sendJson(response, error.statusCode || 500, {
-    error: error.message || "Unexpected server error",
-    details: error.details,
-  });
+  const statusCode = error.statusCode || 500;
+  // Keep upstream (Sanity) details in the server logs only.
+  if (statusCode >= 500 || error.details || error.logDetails) {
+    console.error("[api]", error.message, error.logDetails || "", error.details ? JSON.stringify(error.details) : "");
+  }
+  if (error.retryAfterSeconds) {
+    response.setHeader("Retry-After", String(error.retryAfterSeconds));
+  }
+  const publicMessage =
+    statusCode >= 500 && !error.logDetails ? "Something went wrong on our side. Please try again." : error.message;
+  sendJson(response, statusCode, { error: publicMessage || "Unexpected server error" });
 }
 
 module.exports = {

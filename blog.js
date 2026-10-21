@@ -17,6 +17,13 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("en", { month: "long", day: "numeric", year: "numeric" }).format(new Date(value));
 }
 
+function isSafeHref(href) {
+  const value = String(href || "").trim();
+  if (!value) return false;
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(value)) return true;
+  return /^(https?:|mailto:|tel:)/i.test(value);
+}
+
 function renderSpan(span, markDefs = []) {
   let text = escapeHtml(span.text);
   for (const mark of span.marks || []) {
@@ -24,7 +31,7 @@ function renderSpan(span, markDefs = []) {
     if (mark === "strong") text = `<strong>${text}</strong>`;
     if (mark === "em") text = `<em>${text}</em>`;
     if (mark === "code") text = `<code>${text}</code>`;
-    if (definition?._type === "link" && definition.href) {
+    if (definition?._type === "link" && isSafeHref(definition.href)) {
       text = `<a href="${escapeHtml(definition.href)}" rel="noopener">${text}</a>`;
     }
   }
