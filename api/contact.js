@@ -1,8 +1,23 @@
+const { clientIp, rateLimit } = require("./lib/security");
+
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
   response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.setHeader("Cache-Control", "no-store");
   response.end(JSON.stringify(payload));
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const LIMITS = { name: 120, email: 254, phone: 32, role: 80, pillar: 80, preferredChannel: 40, message: 4000 };
+
+function clean(value, max) {
+  return String(value ?? "").trim().slice(0, max);
+}
+
+function badRequest(message) {
+  const error = new Error(message);
+  error.statusCode = 400;
+  return error;
 }
 
 function splitName(name) {
@@ -124,27 +139,46 @@ module.exports = async function handler(request, response) {
   }
 
   try {
-    const payload = typeof request.body === "string" ? JSON.parse(request.body) : request.body;
-    const {
-      name,
-      email,
-      phone,
-      role,
-      pillar,
-      preferredChannel,
-      emailOptIn,
-      smsOptIn,
-      message,
-      pageUrl,
-      consentText,
-    } = payload || {};
+    const payload = typeof request.body === "string" ? JSON.parse(request.body) : request.body || {};
 
-    if (!name || !email || !phone || !preferredChannel || !message) {
-      sendJson(response, 400, {
-        error: "Name, email, mobile phone, preferred contact method, and message are required.",
-      });
+    // Spam traps: a hidden field real visitors never fill in, and a minimum
+    // time on the page. Bots get a normal-looking success so they move on.
+    const elapsedMs = Number(payload.formElapsedMs);
+    if (payload.website || (Number.isFinite(elapsedMs) && elapsedMs < 2500)) {
+      sendJson(response, 200, { ok: true });
       return;
     }
+
+    const name = clean(payload.name, LIMITS.name);
+    const email = clean(payload.email, LIMITS.email).toLowerCase();
+    const phone = clean(payload.phone, LIMITS.phone);
+    const role = clean(payload.role, LIMITS.role);
+    const pillar = clean(payload.pillar, LIMITS.pillar);
+    const preferredChannel = clean(payload.preferredChannel, LIMITS.preferredChannel);
+    const message = clean(payload.message, LIMITS.message);
+    const emailOptIn = payload.emailOptIn === true;
+    const smsOptIn = payload.smsOptIn === true;
+    const pageUrl = clean(payload.pageUrl, 500);
+    const consentText = clean(payload.consentText, 1000);
+
+    if (!name || !email || !phone || !preferredChannel || !message) {
+      throw badRequest("Name, email, mobile phone, preferred contact method, and message are required.");
+    }
+
+    if (!EMAIL_PATTERN.test(email)) {
+      throw badRequest("Please enter a valid email address.");
+    }
+
+    if (phone.replace(/\D/g, "").length < 10) {
+      throw badRequest("Please enter a valid mobile phone number.");
+    }
+
+    // Count only well-formed submissions, so visitors fixing a typo aren't blocked.
+    rateLimit(`contact:${clientIp(request)}`, {
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+      message: "We've received several requests from you already. Please try again in an hour or email support@cancercoachusa.com.",
+    });
 
     const { firstname, lastname } = splitName(name);
     const submittedAt = new Date().toISOString();
@@ -202,10 +236,18 @@ module.exports = async function handler(request, response) {
       noteId: note.id,
       updated: Boolean(existing),
     });
-  } catch (error) {
-    sendJson(response, error.statusCode || 500, {
-      error: error.message || "Contact submission failed",
-      details: error.details,
+  } catch (caught) {
+    const error = caught instanceof SyntaxError ? badRequest("The form data could not be read.") : caught;
+    const isVisitorError = error.statusCode === 400 || error.statusCode === 429;
+    if (!isVisitorError) {
+      // HubSpot details stay in the server logs, never in the browser.
+      console.error("[contact]", error.message, error.details ? JSON.stringify(error.details) : "");
+    }
+    if (error.retryAfterSeconds) {
+      response.setHeader("Retry-After", String(error.retryAfterSeconds));
+    }
+    sendJson(response, isVisitorError ? error.statusCode : 502, {
+      error: isVisitorError ? error.message : "We could not send your request right now.",
     });
   }
 };

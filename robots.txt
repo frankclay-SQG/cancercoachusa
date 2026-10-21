@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /blog-admin.html
+Disallow: /analytics.html
+Disallow: /api/
+
+Sitemap: https://www.cancercoachusa.com/sitemap.xml

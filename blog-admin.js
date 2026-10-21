@@ -784,8 +784,12 @@ function applyEditorCommand(button) {
   const value = button.dataset.value;
 
   if (command === "createLink") {
-    const href = window.prompt("Paste the link URL");
+    const href = window.prompt("Paste the link URL")?.trim();
     if (!href) return;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(href) && !/^(https?:|mailto:|tel:)/i.test(href)) {
+      setStatus("Links must start with https://, http://, mailto:, or tel:.");
+      return;
+    }
     restoreEditorSelection();
     document.execCommand(command, false, href);
   } else if (command === "formatBlock") {

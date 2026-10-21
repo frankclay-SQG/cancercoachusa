@@ -2772,3 +2772,12 @@ body.book-popup-open {
     font-size: 8pt;
   }
 }
+
+/* Hidden spam trap on the intake form; real visitors never see it. */
+.form-trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

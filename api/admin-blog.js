@@ -1,10 +1,5 @@
+const { isSafeHref, validateMasterKey } = require("./lib/security");
 const { handleError, sanityMutate, sanityQuery, sendJson } = require("./lib/sanity");
-
-function getHeader(request, name) {
-  const headers = request.headers || {};
-  const lowerName = name.toLowerCase();
-  return headers[name] || headers[lowerName] || headers[Object.keys(headers).find((key) => key.toLowerCase() === lowerName)];
-}
 
 function slugify(value) {
   return String(value || "")
@@ -156,7 +151,10 @@ function uniqueKey(prefix, index) {
 
 function normalizeMarkDefs(markDefs = []) {
   return markDefs
-    .filter((definition) => definition?._type === "link" && definition._key && definition.href)
+    .filter(
+      (definition) =>
+        definition?._type === "link" && definition._key && definition.href && isSafeHref(definition.href)
+    )
     .map((definition) => ({
       _key: String(definition._key),
       _type: "link",
@@ -234,23 +232,6 @@ function portableTextFromPayload(payload) {
     ...portableTextFromPlainText(payload?.body),
     ...mediaBlocksFromPayload(payload?.media),
   ];
-}
-
-function validateMasterKey(request) {
-  const configuredKey = process.env.BLOG_ADMIN_MASTER_KEY;
-  const providedKey = getHeader(request, "x-blog-master-key");
-
-  if (!configuredKey) {
-    const error = new Error("Missing BLOG_ADMIN_MASTER_KEY");
-    error.statusCode = 500;
-    throw error;
-  }
-
-  if (!providedKey || providedKey !== configuredKey) {
-    const error = new Error("Invalid blog master key");
-    error.statusCode = 401;
-    throw error;
-  }
 }
 
 async function readPayload(request) {
