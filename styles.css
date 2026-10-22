@@ -2781,3 +2781,19 @@ body.book-popup-open {
   height: 1px;
   overflow: hidden;
 }
+
+/* Google Calendar booking page embedded on the Schedule page. */
+.booking-embed {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(10, 79, 184, 0.08);
+}
+
+.booking-embed iframe {
+  display: block;
+  width: 100%;
+  min-height: 720px;
+  border: 0;
+}
