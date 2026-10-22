@@ -24,6 +24,16 @@ Optional Vercel environment variables:
 - `ATTIO_INTAKE_LIST` (optional) to override the intake list slug; defaults to
   `intake_pipeline`.
 
+Email alert for each intake (sent through a Google Workspace account):
+
+- `ALERT_GMAIL_USER`: the Google Workspace address that sends the alert.
+- `ALERT_GMAIL_APP_PASSWORD`: a Google app password for that account (needs
+  2-Step Verification turned on).
+- `ALERT_EMAIL_TO` (optional): where alerts go; defaults to `ALERT_GMAIL_USER`.
+
+Attio and the email alert run independently: if one fails, the other still
+captures the inquiry. The visitor only sees an error if both fail.
+
 Each intake submission creates or updates an Attio Person (matched by email),
 attaches a note with every form answer, the consent text, source page, and
 timestamp, adds the person to the Intake Pipeline list, and creates a

@@ -128,6 +128,99 @@ async function bestEffort(label, task) {
   }
 }
 
+async function saveToAttio(intake) {
+  const { name, preferredChannel, submittedAt } = intake;
+  const person = await upsertPerson(intake);
+  const personId = person.id.record_id;
+
+  await attioRequest("/notes", {
+    method: "POST",
+    body: {
+      data: {
+        parent_object: "people",
+        parent_record_id: personId,
+        title: `Website intake – ${submittedAt.slice(0, 10)}`,
+        format: "plaintext",
+        content: intakeNoteBody(intake),
+      },
+    },
+  });
+
+  await bestEffort("Adding to intake list", () =>
+    attioRequest(`/lists/${INTAKE_LIST}/entries`, {
+      method: "PUT",
+      body: { data: { parent_record_id: personId, parent_object: "people", entry_values: {} } },
+    }),
+  );
+
+  await bestEffort("Creating follow-up task", () =>
+    attioRequest("/tasks", {
+      method: "POST",
+      body: {
+        data: {
+          content: `Follow up with ${name} (${preferredChannel}) – website intake`,
+          format: "plaintext",
+          deadline_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          is_completed: false,
+          linked_records: [{ target_object: "people", target_record_id: personId }],
+          assignees: [],
+        },
+      },
+    }),
+  );
+}
+
+// Strip line breaks so visitor input can't add email headers.
+function oneLine(value, max = 120) {
+  return String(value || "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
+}
+
+// Emails Danielle about each inquiry through her Google account, using an
+// app password. Returns true if Gmail accepted the message.
+async function sendInquiryAlert(intake, { savedToCrm }) {
+  const user = process.env.ALERT_GMAIL_USER;
+  const pass = process.env.ALERT_GMAIL_APP_PASSWORD;
+  if (!user || !pass) {
+    console.error("[contact] Email alert skipped: ALERT_GMAIL_USER or ALERT_GMAIL_APP_PASSWORD is not set");
+    return false;
+  }
+
+  const to = process.env.ALERT_EMAIL_TO || user;
+  const name = oneLine(intake.name);
+  const crmLine = savedToCrm
+    ? "Saved in Attio: the person, a note with these answers, the Intake Pipeline list, and a follow-up task due tomorrow."
+    : "NOT saved in Attio (it was unavailable). Add this person to Attio by hand.";
+
+  try {
+    const nodemailer = require("nodemailer");
+    const transport = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user, pass: pass.replace(/\s+/g, "") },
+    });
+
+    await transport.sendMail({
+      from: { name: "Cancer Coach USA Website", address: user },
+      to,
+      replyTo: { name, address: intake.email },
+      subject: `New inquiry: ${name}`,
+      text: [
+        `${name} just submitted the intake form on cancercoachusa.com.`,
+        "Reply to this email to answer them directly.",
+        "",
+        intakeNoteBody(intake),
+        "",
+        crmLine,
+      ].join("\n"),
+    });
+    return true;
+  } catch (error) {
+    console.error("[contact] Email alert failed", error.message);
+    return false;
+  }
+}
+
 module.exports = async function handler(request, response) {
   if (request.method !== "POST") {
     sendJson(response, 405, { error: "Method not allowed" });
@@ -192,44 +285,23 @@ module.exports = async function handler(request, response) {
       submittedAt,
     };
 
-    const person = await upsertPerson(intake);
-    const personId = person.id.record_id;
+    // Save to Attio and email the alert independently: if either one fails,
+    // the other still captures the inquiry, so nobody is lost.
+    let savedToCrm = false;
+    try {
+      await saveToAttio(intake);
+      savedToCrm = true;
+    } catch (error) {
+      console.error("[contact] Saving to Attio failed", error.message, error.details ? JSON.stringify(error.details) : "");
+    }
 
-    await attioRequest("/notes", {
-      method: "POST",
-      body: {
-        data: {
-          parent_object: "people",
-          parent_record_id: personId,
-          title: `Website intake – ${submittedAt.slice(0, 10)}`,
-          format: "plaintext",
-          content: intakeNoteBody(intake),
-        },
-      },
-    });
+    const alerted = await sendInquiryAlert(intake, { savedToCrm });
 
-    await bestEffort("Adding to intake list", () =>
-      attioRequest(`/lists/${INTAKE_LIST}/entries`, {
-        method: "PUT",
-        body: { data: { parent_record_id: personId, parent_object: "people", entry_values: {} } },
-      }),
-    );
-
-    await bestEffort("Creating follow-up task", () =>
-      attioRequest("/tasks", {
-        method: "POST",
-        body: {
-          data: {
-            content: `Follow up with ${name} (${preferredChannel}) – website intake`,
-            format: "plaintext",
-            deadline_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            is_completed: false,
-            linked_records: [{ target_object: "people", target_record_id: personId }],
-            assignees: [],
-          },
-        },
-      }),
-    );
+    if (!savedToCrm && !alerted) {
+      const error = new Error("Neither Attio nor the email alert accepted the inquiry");
+      error.statusCode = 502;
+      throw error;
+    }
 
     sendJson(response, 200, { ok: true });
   } catch (caught) {
