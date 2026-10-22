@@ -18,41 +18,6 @@ function saveConsent(preferences) {
       updatedAt: new Date().toISOString(),
     }),
   );
-  applyConsent();
-}
-
-// HubSpot tracking loads only after the visitor allows analytics cookies.
-let hubspotRequested = false;
-
-function loadHubSpotTracking() {
-  if (hubspotRequested || window.location.protocol === "file:") return;
-  // Keep tracking off the private admin and reporting pages.
-  if (/\/(admin|blog-admin|analytics)\.html$/.test(window.location.pathname)) return;
-  hubspotRequested = true;
-
-  fetch("/api/site-config")
-    .then((response) => (response.ok ? response.json() : {}))
-    .then(({ hubspotPortalId } = {}) => {
-      if (!hubspotPortalId || !/^\d+$/.test(hubspotPortalId)) return;
-      if (document.getElementById("hs-script-loader")) return;
-      const script = document.createElement("script");
-      script.id = "hs-script-loader";
-      script.async = true;
-      script.defer = true;
-      script.src = `https://js.hs-scripts.com/${hubspotPortalId}.js`;
-      document.head.append(script);
-    })
-    .catch(() => {});
-}
-
-function applyConsent() {
-  const consent = readConsent();
-  if (consent?.analytics) {
-    loadHubSpotTracking();
-  } else if (consent && window._hsp) {
-    // Visitor withdrew analytics consent: ask HubSpot to drop its cookies.
-    window._hsp.push(["revokeCookieConsent"]);
-  }
 }
 
 function closeCookieBanner() {
@@ -142,5 +107,4 @@ function renderCookieBanner(options = {}) {
 
 document.addEventListener("DOMContentLoaded", () => {
   renderCookieBanner();
-  applyConsent();
 });

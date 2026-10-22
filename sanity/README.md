@@ -19,26 +19,15 @@ Optional Vercel environment variables:
 - `SANITY_READ_TOKEN` or `SANITY_API_READ_TOKEN` if the dataset is private or if draft/preview access is needed.
 - `SANITY_WRITE_TOKEN` or `SANITY_API_WRITE_TOKEN` for the controlled blog admin interface.
 - `BLOG_ADMIN_MASTER_KEY` for the controlled blog admin interface at `/blog-admin.html`.
-- `HUBSPOT_PRIVATE_APP_TOKEN` for contact form submission.
+- `ATTIO_API_KEY` for contact form submission (Attio access token with
+  read-write access to records, list entries, notes, and tasks).
+- `ATTIO_INTAKE_LIST` (optional) to override the intake list slug; defaults to
+  `intake_pipeline`.
 
-Optional HubSpot custom property mapping:
-
-- `HUBSPOT_CONTACT_ROLE_PROPERTY`
-- `HUBSPOT_CONTACT_PILLAR_PROPERTY`
-- `HUBSPOT_CONTACT_CHANNEL_PROPERTY`
-- `HUBSPOT_CONTACT_MESSAGE_PROPERTY`
-- `HUBSPOT_EMAIL_OPT_IN_PROPERTY`
-- `HUBSPOT_SMS_OPT_IN_PROPERTY`
-- `HUBSPOT_CONSENT_SOURCE_PROPERTY`
-- `HUBSPOT_CONSENT_TIMESTAMP_PROPERTY`
-- `HUBSPOT_SOURCE_PAGE_PROPERTY`
-- `HUBSPOT_CONSENT_TEXT_PROPERTY`
-
-If the optional HubSpot custom property names are not set, the API route will
-still create or update the contact using standard HubSpot properties: `email`,
-`firstname`, `lastname`, `phone`, and `mobilephone`. Every successful intake
-also creates a HubSpot note associated with the contact so the full form details,
-consent choices, source page, and message are preserved for follow-up.
+Each intake submission creates or updates an Attio Person (matched by email),
+attaches a note with every form answer, the consent text, source page, and
+timestamp, adds the person to the Intake Pipeline list, and creates a
+follow-up task due the next day.
 
 ## Controlled Blog Admin
 

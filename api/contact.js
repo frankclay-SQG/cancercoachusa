@@ -23,113 +23,109 @@ function badRequest(message) {
 function splitName(name) {
   const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
   if (parts.length <= 1) {
-    return { firstname: parts[0] || "", lastname: "" };
+    return { firstName: parts[0] || "", lastName: "" };
   }
-  return {
-    firstname: parts.slice(0, -1).join(" "),
-    lastname: parts.at(-1),
-  };
+  return { firstName: parts.slice(0, -1).join(" "), lastName: parts.at(-1) };
 }
 
-function addOptional(properties, envKey, value) {
-  const propertyName = process.env[envKey];
-  if (propertyName && value !== undefined && value !== null && value !== "") {
-    properties[propertyName] = value;
-  }
+// Attio expects international format. US numbers typed as 10 digits get +1.
+function toE164(phone) {
+  const digits = phone.replace(/\D/g, "");
+  if (phone.trim().startsWith("+")) return `+${digits}`;
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  return null;
 }
 
 function intakeNoteBody(payload) {
-  const lines = [
-    "Cancer Coach USA website intake",
-    "",
+  return [
     `Submitted: ${payload.submittedAt}`,
     `Name: ${payload.name}`,
     `Email: ${payload.email}`,
     `Mobile phone: ${payload.phone || "Not provided"}`,
-    `Role: ${payload.role || "Not provided"}`,
+    `I am: ${payload.role || "Not provided"}`,
     `Primary interest: ${payload.pillar || "Not provided"}`,
     `Preferred contact method: ${payload.preferredChannel || "Not provided"}`,
-    `Email opt-in: ${payload.emailOptIn ? "Yes" : "No"}`,
-    `SMS opt-in: ${payload.smsOptIn ? "Yes" : "No"}`,
+    `Email updates opt-in: ${payload.emailOptIn ? "Yes" : "No"}`,
+    `Text message opt-in: ${payload.smsOptIn ? "Yes" : "No"}`,
     `Source page: ${payload.pageUrl || "Not provided"}`,
     "",
-    "Consent text:",
+    "Consent text shown at submission:",
     payload.consentText || "Not provided",
     "",
-    "Requested support:",
+    "What kind of support would help most:",
     payload.message,
-  ];
-
-  return lines.join("\n");
+  ].join("\n");
 }
 
-async function hubspotRequest(path, options = {}) {
-  const token = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
+const ATTIO_API = "https://api.attio.com/v2";
+const INTAKE_LIST = process.env.ATTIO_INTAKE_LIST || "intake_pipeline";
+
+async function attioRequest(path, { method = "GET", body } = {}) {
+  const token = process.env.ATTIO_API_KEY;
   if (!token) {
-    const error = new Error("Missing HUBSPOT_PRIVATE_APP_TOKEN");
+    const error = new Error("Missing ATTIO_API_KEY");
     error.statusCode = 500;
     throw error;
   }
 
-  const result = await fetch(`https://api.hubapi.com${path}`, {
-    ...options,
+  const result = await fetch(`${ATTIO_API}${path}`, {
+    method,
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-      ...(options.headers || {}),
     },
+    body: body ? JSON.stringify(body) : undefined,
   });
-  const body = await result.json().catch(() => ({}));
+  const data = await result.json().catch(() => ({}));
 
   if (!result.ok) {
-    const error = new Error(body.message || "HubSpot request failed");
+    const error = new Error(data.message || `Attio request failed (${result.status})`);
     error.statusCode = result.status;
-    error.details = body;
+    error.details = data;
     throw error;
   }
 
-  return body;
+  return data;
 }
 
-async function findContactByEmail(email) {
-  const body = await hubspotRequest("/crm/v3/objects/contacts/search", {
-    method: "POST",
-    body: JSON.stringify({
-      filterGroups: [
-        {
-          filters: [
-            {
-              propertyName: "email",
-              operator: "EQ",
-              value: email,
-            },
-          ],
-        },
-      ],
-      properties: ["email"],
-      limit: 1,
-    }),
-  });
+// Create or update the person, matched by email so repeat visitors don't
+// become duplicates. If Attio rejects the phone number, save the person
+// without it; the number is still in the intake note.
+async function upsertPerson({ name, email, phone }) {
+  const { firstName, lastName } = splitName(name);
+  const values = {
+    email_addresses: [{ email_address: email }],
+    name: [{ first_name: firstName, last_name: lastName, full_name: name }],
+  };
+  const e164 = toE164(phone);
+  const path = "/objects/people/records?matching_attribute=email_addresses";
 
-  return body.results?.[0];
+  if (e164) {
+    try {
+      const withPhone = await attioRequest(path, {
+        method: "PUT",
+        body: { data: { values: { ...values, phone_numbers: [{ original_phone_number: e164 }] } } },
+      });
+      return withPhone.data;
+    } catch (error) {
+      if (error.statusCode !== 400) throw error;
+      console.error("[contact] Attio rejected phone number; saving without it", JSON.stringify(error.details));
+    }
+  }
+
+  const withoutPhone = await attioRequest(path, { method: "PUT", body: { data: { values } } });
+  return withoutPhone.data;
 }
 
-async function createIntakeNote(contactId, payload) {
-  const note = await hubspotRequest("/crm/v3/objects/notes", {
-    method: "POST",
-    body: JSON.stringify({
-      properties: {
-        hs_timestamp: payload.submittedAt,
-        hs_note_body: intakeNoteBody(payload),
-      },
-    }),
-  });
-
-  await hubspotRequest(`/crm/v4/objects/notes/${note.id}/associations/default/contacts/${contactId}`, {
-    method: "PUT",
-  });
-
-  return note;
+// Non-essential steps: if one fails, the person and note are already saved,
+// so log it and carry on rather than telling the visitor it failed.
+async function bestEffort(label, task) {
+  try {
+    await task();
+  } catch (error) {
+    console.error(`[contact] ${label} failed`, error.message, error.details ? JSON.stringify(error.details) : "");
+  }
 }
 
 module.exports = async function handler(request, response) {
@@ -180,42 +176,8 @@ module.exports = async function handler(request, response) {
       message: "We've received several requests from you already. Please try again in an hour or email support@cancercoachusa.com.",
     });
 
-    const { firstname, lastname } = splitName(name);
     const submittedAt = new Date().toISOString();
-    const properties = {
-      email,
-      firstname,
-      lastname,
-    };
-
-    if (phone) {
-      properties.phone = phone;
-      properties.mobilephone = phone;
-    }
-
-    addOptional(properties, "HUBSPOT_CONTACT_ROLE_PROPERTY", role);
-    addOptional(properties, "HUBSPOT_CONTACT_PILLAR_PROPERTY", pillar);
-    addOptional(properties, "HUBSPOT_CONTACT_CHANNEL_PROPERTY", preferredChannel);
-    addOptional(properties, "HUBSPOT_CONTACT_MESSAGE_PROPERTY", message);
-    addOptional(properties, "HUBSPOT_EMAIL_OPT_IN_PROPERTY", emailOptIn ? "true" : "false");
-    addOptional(properties, "HUBSPOT_SMS_OPT_IN_PROPERTY", smsOptIn ? "true" : "false");
-    addOptional(properties, "HUBSPOT_CONSENT_SOURCE_PROPERTY", "Cancer Coach USA website");
-    addOptional(properties, "HUBSPOT_CONSENT_TIMESTAMP_PROPERTY", submittedAt);
-    addOptional(properties, "HUBSPOT_SOURCE_PAGE_PROPERTY", pageUrl);
-    addOptional(properties, "HUBSPOT_CONSENT_TEXT_PROPERTY", consentText);
-
-    const existing = await findContactByEmail(email);
-    const contact = existing
-      ? await hubspotRequest(`/crm/v3/objects/contacts/${existing.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({ properties }),
-        })
-      : await hubspotRequest("/crm/v3/objects/contacts", {
-          method: "POST",
-          body: JSON.stringify({ properties }),
-        });
-
-    const note = await createIntakeNote(contact.id, {
+    const intake = {
       name,
       email,
       phone,
@@ -228,19 +190,53 @@ module.exports = async function handler(request, response) {
       pageUrl,
       consentText,
       submittedAt,
+    };
+
+    const person = await upsertPerson(intake);
+    const personId = person.id.record_id;
+
+    await attioRequest("/notes", {
+      method: "POST",
+      body: {
+        data: {
+          parent_object: "people",
+          parent_record_id: personId,
+          title: `Website intake – ${submittedAt.slice(0, 10)}`,
+          format: "plaintext",
+          content: intakeNoteBody(intake),
+        },
+      },
     });
 
-    sendJson(response, 200, {
-      ok: true,
-      contactId: contact.id,
-      noteId: note.id,
-      updated: Boolean(existing),
-    });
+    await bestEffort("Adding to intake list", () =>
+      attioRequest(`/lists/${INTAKE_LIST}/entries`, {
+        method: "PUT",
+        body: { data: { parent_record_id: personId, parent_object: "people", entry_values: {} } },
+      }),
+    );
+
+    await bestEffort("Creating follow-up task", () =>
+      attioRequest("/tasks", {
+        method: "POST",
+        body: {
+          data: {
+            content: `Follow up with ${name} (${preferredChannel}) – website intake`,
+            format: "plaintext",
+            deadline_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            is_completed: false,
+            linked_records: [{ target_object: "people", target_record_id: personId }],
+            assignees: [],
+          },
+        },
+      }),
+    );
+
+    sendJson(response, 200, { ok: true });
   } catch (caught) {
     const error = caught instanceof SyntaxError ? badRequest("The form data could not be read.") : caught;
-    const isVisitorError = error.statusCode === 400 || error.statusCode === 429;
+    const isVisitorError = error.statusCode === 400 && !error.details || error.statusCode === 429;
     if (!isVisitorError) {
-      // HubSpot details stay in the server logs, never in the browser.
+      // CRM error details stay in the server logs, never in the browser.
       console.error("[contact]", error.message, error.details ? JSON.stringify(error.details) : "");
     }
     if (error.retryAfterSeconds) {
