@@ -51,8 +51,33 @@ bookReleasePopup?.addEventListener("keydown", (event) => {
   }
 });
 
+// Show the book announcement once per visitor, then again only after 60 days.
+const BOOK_POPUP_KEY = "ccusa_book_popup_seen";
+const BOOK_POPUP_REPEAT_MS = 60 * 24 * 60 * 60 * 1000;
+
+function bookPopupRecentlySeen() {
+  try {
+    const seenAt = Number(localStorage.getItem(BOOK_POPUP_KEY));
+    return Number.isFinite(seenAt) && seenAt > 0 && Date.now() - seenAt < BOOK_POPUP_REPEAT_MS;
+  } catch {
+    return false;
+  }
+}
+
+function rememberBookPopupSeen() {
+  try {
+    localStorage.setItem(BOOK_POPUP_KEY, String(Date.now()));
+  } catch {
+    // Storage unavailable (private mode): the popup may show again next visit.
+  }
+}
+
 window.addEventListener("load", () => {
-  window.setTimeout(openBookReleasePopup, 350);
+  if (bookPopupRecentlySeen()) return;
+  window.setTimeout(() => {
+    openBookReleasePopup();
+    rememberBookPopupSeen();
+  }, 350);
 });
 
 form?.addEventListener("submit", (event) => {
