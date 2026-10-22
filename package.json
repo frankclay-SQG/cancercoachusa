@@ -1,0 +1,11 @@
+{
+  "name": "cancercoachusa",
+  "private": true,
+  "description": "Cancer Coach USA website and serverless API routes",
+  "engines": {
+    "node": "24.x"
+  },
+  "dependencies": {
+    "nodemailer": "10.0.15"
+  }
+}
