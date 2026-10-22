@@ -1,27 +1,28 @@
 :root {
-  --brand-sky: #22B4F4;
-  --brand-blue: #0A6FD9;
-  --brand-royal: #0A4FB8;
-  --brand-violet: #6B47F5;
-  --brand-pink: #F34D97;
-  --brand-plum: #5A4C86;
-  --sky-rgb: 34, 180, 244;
-  --blue-rgb: 10, 111, 217;
-  --royal-rgb: 10, 79, 184;
-  --violet-rgb: 107, 71, 245;
-  --pink-rgb: 243, 77, 151;
-  --plum-rgb: 90, 76, 134;
+  /* Palette matched to the Cancer Coach USA logo (see the brand kit). */
+  --brand-sky: #15B9C3;     /* Ribbon Teal */
+  --brand-blue: #0B7F86;    /* Text Teal */
+  --brand-royal: #4B2577;   /* Deep Purple */
+  --brand-violet: #6550A4;  /* Hand Violet */
+  --brand-pink: #87CAA1;    /* Mint */
+  --brand-plum: #59358A;    /* Coach Purple */
+  --sky-rgb: 21, 185, 195;
+  --blue-rgb: 11, 127, 134;
+  --royal-rgb: 75, 37, 119;
+  --violet-rgb: 101, 80, 164;
+  --pink-rgb: 135, 202, 161;
+  --plum-rgb: 89, 53, 138;
   --ink: var(--brand-royal);
   --charcoal: var(--brand-plum);
   --graphite: var(--brand-plum);
   --steel: var(--brand-violet);
   --silver: var(--brand-sky);
-  --mist: #eef9ff;
-  --pearl: #f7fbff;
+  --mist: #f1f9f9;
+  --pearl: #fbf9fd;
   --paper: #ffffff;
   --sage: var(--brand-blue);
   --amber: var(--brand-pink);
-  --accent-gradient: linear-gradient(135deg, var(--brand-sky), var(--brand-blue), var(--brand-violet), var(--brand-pink));
+  --accent-gradient: linear-gradient(135deg, var(--brand-blue), var(--brand-violet), var(--brand-royal));
   --shadow: 0 20px 60px rgba(var(--plum-rgb), 0.16);
   --radius: 8px;
 }
@@ -474,12 +475,18 @@ h3 {
   color: var(--mist);
 }
 
+.pathway-section .eyebrow,
+.feature-pillar .eyebrow,
+.site-footer .eyebrow {
+  color: var(--brand-pink);
+}
+
 .pathway-section h2 {
   color: var(--paper);
 }
 
 .pathway-copy p:not(.eyebrow) {
-  color: rgba(var(--sky-rgb), 0.78);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 1.04rem;
 }
 
@@ -507,12 +514,12 @@ h3 {
 
 .timeline p {
   margin-bottom: 0;
-  color: rgba(var(--sky-rgb), 0.78);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .resources-section {
   background:
-    linear-gradient(180deg, rgba(var(--sky-rgb), 0.76), rgba(255, 255, 255, 0.98)),
+    linear-gradient(180deg, rgba(var(--sky-rgb), 0.2), rgba(255, 255, 255, 0.98)),
     var(--mist);
 }
 
@@ -565,7 +572,8 @@ h3 {
   padding: 180px clamp(22px, 6vw, 88px) 58px;
   overflow: hidden;
   background:
-    linear-gradient(110deg, rgba(255, 255, 255, 0.98), rgba(var(--sky-rgb), 0.88)),
+    radial-gradient(circle at 85% 30%, rgba(var(--violet-rgb), 0.14), transparent 45%),
+    linear-gradient(110deg, rgba(255, 255, 255, 0.98), rgba(var(--sky-rgb), 0.22)),
     var(--mist);
 }
 
@@ -576,8 +584,8 @@ h3 {
   width: min(54vw, 620px);
   aspect-ratio: 1;
   content: "";
-  background: url("assets/cancer-coach-usa-logo.png") center / contain no-repeat;
-  opacity: 0.12;
+  background: url("assets/emblem-purple.png") center / contain no-repeat;
+  opacity: 0.1;
   pointer-events: none;
 }
 
@@ -626,7 +634,7 @@ h3 {
   gap: clamp(28px, 6vw, 76px);
   align-items: center;
   background:
-    linear-gradient(180deg, rgba(var(--sky-rgb), 0.8), rgba(255, 255, 255, 0.98)),
+    linear-gradient(180deg, rgba(var(--sky-rgb), 0.2), rgba(255, 255, 255, 0.98)),
     var(--mist);
 }
 
@@ -739,7 +747,7 @@ h3 {
 }
 
 .feature-pillar p {
-  color: rgba(var(--sky-rgb), 0.78);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .pillar-cta {
@@ -748,7 +756,7 @@ h3 {
   gap: 28px;
   align-items: end;
   background:
-    linear-gradient(180deg, rgba(var(--sky-rgb), 0.74), rgba(255, 255, 255, 0.98)),
+    linear-gradient(180deg, rgba(var(--sky-rgb), 0.2), rgba(255, 255, 255, 0.98)),
     var(--mist);
 }
 
@@ -1034,7 +1042,7 @@ h3 {
   width: min(54vw, 620px);
   aspect-ratio: 1;
   content: "";
-  background: url("assets/cancer-coach-usa-logo.png") center / contain no-repeat;
+  background: url("assets/emblem-purple.png") center / contain no-repeat;
   opacity: 0.1;
   pointer-events: none;
 }
@@ -2307,7 +2315,7 @@ body.book-popup-open {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
-  color: rgba(var(--sky-rgb), 0.84);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 0.86rem;
   font-weight: 800;
 }
@@ -2326,7 +2334,7 @@ body.book-popup-open {
 .footer-disclaimer {
   max-width: 980px;
   margin: 0;
-  color: rgba(var(--sky-rgb), 0.72);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 0.82rem;
 }
 
