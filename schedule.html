@@ -78,17 +78,26 @@
         </div>
       </section>
 
-      <section class="section schedule-shell" aria-live="polite">
+      <section class="section schedule-shell" aria-labelledby="booking-title">
         <div>
-          <p class="eyebrow">Upcoming openings</p>
-          <h2>Survivorship coaching availability</h2>
+          <p class="eyebrow">Book a time</p>
+          <h2 id="booking-title">Schedule a conversation with Dr. Danielle Clay</h2>
           <p>
-            Times shown here are managed in Sanity. Each available slot can link to
-            a HubSpot meeting page, Google Calendar booking page, or another scheduling URL.
+            Pick an open 30-minute time below. You'll get a confirmation email with
+            a Google Meet link. All times are shown in your own time zone.
+          </p>
+          <p>
+            <a class="button button-primary" href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ3oGkgJKI-DZv3LGrirQz0h0lkUPOpl_7YdeS4OCe2KSLJAZl5ZzvL8TRLtZo5G1ZDEIH1kuu7G" target="_blank" rel="noopener">
+              Open the booking page
+            </a>
           </p>
         </div>
-        <div id="schedule-calendar" class="schedule-calendar">
-          <p class="loading-text">Loading calendar from Sanity.</p>
+        <div class="booking-embed">
+          <iframe
+            src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ3oGkgJKI-DZv3LGrirQz0h0lkUPOpl_7YdeS4OCe2KSLJAZl5ZzvL8TRLtZo5G1ZDEIH1kuu7G?gv=true"
+            title="Book a time with Dr. Danielle Clay"
+            loading="lazy"
+          ></iframe>
         </div>
       </section>
     </main>
@@ -112,6 +121,5 @@
     </footer>
 
     <script src="site.js"></script>
-    <script src="schedule.js"></script>
   </body>
 </html>
