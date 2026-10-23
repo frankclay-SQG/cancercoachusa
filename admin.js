@@ -37,7 +37,6 @@ function nextDestination() {
   const params = new URLSearchParams(window.location.search);
   const next = params.get("next");
   if (next === "analytics") return "analytics.html";
-  if (next === "blog") return "blog-admin.html";
   return "";
 }
 
@@ -54,7 +53,7 @@ function showLogin(message = "") {
 }
 
 async function verifyMasterKey(masterKey) {
-  const response = await fetch("/api/admin-blog", {
+  const response = await fetch("/api/admin-verify", {
     headers: { "x-blog-master-key": masterKey },
   });
   const data = await response.json().catch(() => ({}));
