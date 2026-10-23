@@ -51,43 +51,6 @@ function rateLimit(key, { limit, windowMs, message }) {
   }
 }
 
-function validateMasterKey(request) {
-  const configuredKey = process.env.BLOG_ADMIN_MASTER_KEY;
-
-  if (!configuredKey) {
-    const error = new Error("Admin access is not configured.");
-    error.statusCode = 500;
-    error.logDetails = "Missing BLOG_ADMIN_MASTER_KEY";
-    throw error;
-  }
-
-  const ip = clientIp(request);
-  const failKey = `admin-fail:${ip}`;
-  const failWindow = { limit: 10, windowMs: 15 * 60 * 1000 };
-  const providedKey = getHeader(request, "x-blog-master-key");
-
-  // Once an address has too many wrong guesses, refuse even a correct key
-  // until the window resets, so guessing cannot continue in the background.
-  const failures = buckets.get(failKey);
-  if (failures && Date.now() - failures.start <= failWindow.windowMs && failures.count >= failWindow.limit) {
-    const error = new Error("Too many failed attempts. Please wait 15 minutes and try again.");
-    error.statusCode = 429;
-    error.retryAfterSeconds = Math.ceil((failures.start + failWindow.windowMs - Date.now()) / 1000);
-    throw error;
-  }
-
-  if (!safeEqual(providedKey, configuredKey)) {
-    try {
-      rateLimit(failKey, failWindow);
-    } catch {
-      // The limit now applies; still report this attempt as a bad key.
-    }
-    const error = new Error("Invalid blog master key");
-    error.statusCode = 401;
-    throw error;
-  }
-}
-
 const SAFE_LINK = /^(https?:|mailto:|tel:|\/|#)/i;
 
 function isSafeHref(href) {
@@ -104,5 +67,4 @@ module.exports = {
   isSafeHref,
   rateLimit,
   safeEqual,
-  validateMasterKey,
 };
