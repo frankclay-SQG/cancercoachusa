@@ -17,7 +17,6 @@ Required Vercel environment variables:
 Optional Vercel environment variables:
 
 - `SANITY_READ_TOKEN` or `SANITY_API_READ_TOKEN` if the dataset is private or if draft/preview access is needed.
-- `BLOG_ADMIN_MASTER_KEY` for the analytics login at `/admin.html`.
 - `ATTIO_API_KEY` for contact form submission (Attio access token with
   read-write access to records, list entries, notes, and tasks).
 - `ATTIO_INTAKE_LIST` (optional) to override the intake list slug; defaults to
