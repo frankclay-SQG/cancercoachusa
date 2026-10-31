@@ -2029,6 +2029,13 @@ h3 {
   color: var(--graphite);
 }
 
+.contact-address {
+  margin: 0 0 18px;
+  color: var(--graphite);
+  font-style: normal;
+  line-height: 1.6;
+}
+
 .fine-print {
   padding-top: 18px;
   border-top: 1px solid rgba(var(--plum-rgb), 0.18);
