@@ -7,7 +7,12 @@ const POST_FIELDS = `{
   excerpt,
   publishedAt,
   category,
-  "author": author->name,
+  "author": coalesce(author->name, *[_type == "author"] | order(_createdAt asc)[0].name),
+  "authorBio": coalesce(author->bio, *[_type == "author"] | order(_createdAt asc)[0].bio),
+  "authorImage": coalesce(author->image, *[_type == "author"] | order(_createdAt asc)[0].image){
+    alt,
+    asset->{url}
+  },
   mainImage{
     alt,
     asset->{url, metadata{dimensions}}
