@@ -2862,3 +2862,23 @@ body.book-popup-open {
     flex-direction: column;
   }
 }
+
+.opt-in-group {
+  margin: 4px 0 0;
+  padding: 16px 18px 6px;
+  border: 1px solid rgba(var(--violet-rgb), 0.28);
+  border-radius: var(--radius);
+  background: var(--pearl);
+}
+
+.opt-in-group legend {
+  padding: 0 6px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.opt-in-help {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  color: var(--graphite);
+}

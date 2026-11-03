@@ -190,14 +190,18 @@
             Anything you'd like the group to know? (optional)
             <textarea name="message" rows="4"></textarea>
           </label>
-          <label class="check-label">
-            <input name="email_opt_in" type="checkbox">
-            <span>I agree to receive email updates from Cancer Coach USA.</span>
-          </label>
-          <label class="check-label">
-            <input name="sms_opt_in" type="checkbox">
-            <span>I agree to receive text messages from Cancer Coach USA. Message and data rates may apply. Reply STOP to opt out.</span>
-          </label>
+          <fieldset class="opt-in-group">
+            <legend>Stay connected</legend>
+            <p class="opt-in-help">Choose how you'd like to hear about gatherings, reminders, and new resources. You can opt out anytime.</p>
+            <label class="check-label">
+              <input name="email_opt_in" type="checkbox">
+              <span>I agree to receive email updates from Cancer Coach USA.</span>
+            </label>
+            <label class="check-label">
+              <input name="sms_opt_in" type="checkbox">
+              <span>I agree to receive text messages from Cancer Coach USA. Message and data rates may apply. Reply STOP to opt out.</span>
+            </label>
+          </fieldset>
           <button class="button button-primary" type="submit">Register</button>
           <p class="form-status" id="meetup-form-status" role="status" aria-live="polite"></p>
         </form>

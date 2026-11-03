@@ -188,6 +188,22 @@ async function saveToAttio(intake) {
     },
   });
 
+  // Record consent on the person so Dani can filter who to email or text.
+  // Only a "yes" is written, so a later form left unchecked never erases an
+  // earlier opt-in. Needs checkbox attributes email_opt_in and sms_opt_in on
+  // People in Attio; if they are missing, the note above still has the answers.
+  const consent = {};
+  if (intake.emailOptIn) consent.email_opt_in = true;
+  if (intake.smsOptIn) consent.sms_opt_in = true;
+  if (Object.keys(consent).length) {
+    await bestEffort("Saving communication opt-ins", () =>
+      attioRequest(`/objects/people/records/${personId}`, {
+        method: "PATCH",
+        body: { data: { values: consent } },
+      }),
+    );
+  }
+
   await bestEffort(`Adding to ${form.list}`, () =>
     attioRequest(`/lists/${form.list}/entries`, {
       method: "PUT",
