@@ -91,18 +91,19 @@
             and find encouragement after treatment.
           </p>
           <p>
-            Sign up and event registration are handled directly on Meetup. Visit
-            the group page to join, see upcoming gatherings, and RSVP for events.
+            Register below and Cancer Coach USA will reach out with gathering
+            dates, times, and locations. You can also join the group on Meetup
+            to see events and RSVP there.
           </p>
           <div class="meeting-actions">
+            <a class="button button-primary" href="#register">Register for the Meetup</a>
             <a
-              class="button button-primary"
+              class="button button-secondary"
               href="https://www.meetup.com/i-beat-cancer-now-what-meetup-group/"
               rel="noopener"
             >
               Visit Meetup Group
             </a>
-            <a class="button button-secondary" href="meetings.html">View Meetings</a>
           </div>
         </div>
 
@@ -117,6 +118,93 @@
             Community support for the questions that come after cancer treatment.
           </figcaption>
         </figure>
+      </section>
+      <section id="register" class="section contact-section">
+        <div class="contact-copy">
+          <p class="eyebrow">Register</p>
+          <h2>Save your seat in the group.</h2>
+          <p>
+            Tell us a little about yourself and how you'd like to join. Dr.
+            Danielle Clay's team will follow up with the next gathering and
+            everything you need to attend. Survivors, caregivers, family, and
+            friends are all welcome.
+          </p>
+          <p class="fine-print">
+            Please do not include medical details in this form. Cancer Coach
+            USA does not replace medical care.
+          </p>
+        </div>
+        <form class="contact-form" id="meetup-form">
+          <div class="form-trap" aria-hidden="true">
+            <label>Leave this field empty
+              <input name="website" type="text" tabindex="-1" autocomplete="off">
+            </label>
+          </div>
+          <p class="required-note"><span aria-hidden="true">*</span> Required field</p>
+          <label>
+            <span class="field-label" style="display: inline">First name <span class="required-marker" aria-hidden="true">*</span></span>
+            <input name="first_name" type="text" autocomplete="given-name" required>
+          </label>
+          <label>
+            <span class="field-label" style="display: inline">Last name <span class="required-marker" aria-hidden="true">*</span></span>
+            <input name="last_name" type="text" autocomplete="family-name" required>
+          </label>
+          <label>
+            <span class="field-label" style="display: inline">Email <span class="required-marker" aria-hidden="true">*</span></span>
+            <input name="email" type="email" autocomplete="email" required>
+          </label>
+          <label>
+            <span class="field-label" style="display: inline">Mobile phone <span class="required-marker" aria-hidden="true">*</span></span>
+            <input name="phone" type="tel" autocomplete="tel" placeholder="+1 555 123 4567" required>
+          </label>
+          <label>
+            <span class="field-label" style="display: inline">I am <span class="required-marker" aria-hidden="true">*</span></span>
+            <select name="role" required>
+              <option value="">Choose one</option>
+              <option>A cancer survivor in remission</option>
+              <option>A survivor after active treatment</option>
+              <option>A caregiver or family member</option>
+              <option>A friend or advocate</option>
+              <option>A professional referral source</option>
+            </select>
+          </label>
+          <label>
+            <span class="field-label" style="display: inline">How would you like to join? <span class="required-marker" aria-hidden="true">*</span></span>
+            <select name="attendance" required>
+              <option value="">Choose one</option>
+              <option>In person (Chester, VA area)</option>
+              <option>Online</option>
+              <option>Either in person or online</option>
+            </select>
+          </label>
+          <label>
+            <span class="field-label" style="display: inline">Preferred contact method <span class="required-marker" aria-hidden="true">*</span></span>
+            <select name="preferred_channel" required>
+              <option value="">Choose one</option>
+              <option>Email</option>
+              <option>SMS</option>
+              <option>Either email or SMS</option>
+            </select>
+          </label>
+          <label>
+            Anything you'd like the group to know? (optional)
+            <textarea name="message" rows="4"></textarea>
+          </label>
+          <fieldset class="opt-in-group">
+            <legend>Stay connected</legend>
+            <p class="opt-in-help">Choose how you'd like to hear about gatherings, reminders, and new resources. You can opt out anytime.</p>
+            <label class="check-label">
+              <input name="email_opt_in" type="checkbox">
+              <span>I agree to receive email updates from Cancer Coach USA.</span>
+            </label>
+            <label class="check-label">
+              <input name="sms_opt_in" type="checkbox">
+              <span>I agree to receive text messages from Cancer Coach USA. Message and data rates may apply. Reply STOP to opt out.</span>
+            </label>
+          </fieldset>
+          <button class="button button-primary" type="submit">Register</button>
+          <p class="form-status" id="meetup-form-status" role="status" aria-live="polite"></p>
+        </form>
       </section>
     </main>
 
@@ -140,5 +228,6 @@
     </footer>
 
     <script src="site.js"></script>
+    <script src="meetup.js"></script>
   </body>
 </html>

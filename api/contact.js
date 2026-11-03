@@ -8,7 +8,7 @@ function sendJson(response, statusCode, payload) {
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const LIMITS = { name: 120, email: 254, phone: 32, role: 80, pillar: 80, preferredChannel: 40, message: 4000 };
+const LIMITS = { name: 120, firstName: 60, lastName: 60, attendance: 60, email: 254, phone: 32, role: 80, pillar: 80, preferredChannel: 40, message: 4000 };
 
 function clean(value, max) {
   return String(value ?? "").trim().slice(0, max);
@@ -19,6 +19,23 @@ function badRequest(message) {
   error.statusCode = 400;
   return error;
 }
+
+const FORM_TYPES = {
+  intake: {
+    label: "Website intake",
+    list: process.env.ATTIO_INTAKE_LIST || "intake_pipeline",
+    listName: "the Intake Pipeline list",
+    subject: "New inquiry",
+    task: "website intake",
+  },
+  meetup: {
+    label: "Meetup registration",
+    list: process.env.ATTIO_MEETUP_LIST || "meetup_registrations",
+    listName: "the Meetup Registrations list",
+    subject: "New meetup registration",
+    task: "welcome to the meetup group",
+  },
+};
 
 function splitName(name) {
   const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
@@ -38,6 +55,29 @@ function toE164(phone) {
 }
 
 function intakeNoteBody(payload) {
+  if (payload.formType === "meetup") {
+    return [
+      `Submitted: ${payload.submittedAt}`,
+      `Form: Meetup group registration`,
+      `First name: ${payload.firstName}`,
+      `Last name: ${payload.lastName}`,
+      `Email: ${payload.email}`,
+      `Mobile phone: ${payload.phone || "Not provided"}`,
+      `I am: ${payload.role || "Not provided"}`,
+      `How they'd like to join: ${payload.attendance || "Not provided"}`,
+      `Preferred contact method: ${payload.preferredChannel || "Not provided"}`,
+      `Email updates opt-in: ${payload.emailOptIn ? "Yes" : "No"}`,
+      `Text message opt-in: ${payload.smsOptIn ? "Yes" : "No"}`,
+      `Source page: ${payload.pageUrl || "Not provided"}`,
+      "",
+      "Consent text shown at submission:",
+      payload.consentText || "Not provided",
+      "",
+      "Anything they'd like the group to know:",
+      payload.message || "Nothing added",
+    ].join("\n");
+  }
+
   return [
     `Submitted: ${payload.submittedAt}`,
     `Name: ${payload.name}`,
@@ -59,7 +99,6 @@ function intakeNoteBody(payload) {
 }
 
 const ATTIO_API = "https://api.attio.com/v2";
-const INTAKE_LIST = process.env.ATTIO_INTAKE_LIST || "intake_pipeline";
 
 async function attioRequest(path, { method = "GET", body } = {}) {
   const token = process.env.ATTIO_API_KEY;
@@ -92,8 +131,10 @@ async function attioRequest(path, { method = "GET", body } = {}) {
 // Create or update the person, matched by email so repeat visitors don't
 // become duplicates. If Attio rejects the phone number, save the person
 // without it; the number is still in the intake note.
-async function upsertPerson({ name, email, phone }) {
-  const { firstName, lastName } = splitName(name);
+async function upsertPerson({ name, email, phone, firstName: givenFirst, lastName: givenLast }) {
+  const split = splitName(name);
+  const firstName = givenFirst || split.firstName;
+  const lastName = givenFirst ? givenLast : split.lastName;
   const values = {
     email_addresses: [{ email_address: email }],
     name: [{ first_name: firstName, last_name: lastName, full_name: name }],
@@ -130,6 +171,7 @@ async function bestEffort(label, task) {
 
 async function saveToAttio(intake) {
   const { name, preferredChannel, submittedAt } = intake;
+  const form = FORM_TYPES[intake.formType];
   const person = await upsertPerson(intake);
   const personId = person.id.record_id;
 
@@ -139,15 +181,31 @@ async function saveToAttio(intake) {
       data: {
         parent_object: "people",
         parent_record_id: personId,
-        title: `Website intake – ${submittedAt.slice(0, 10)}`,
+        title: `${form.label} – ${submittedAt.slice(0, 10)}`,
         format: "plaintext",
         content: intakeNoteBody(intake),
       },
     },
   });
 
-  await bestEffort("Adding to intake list", () =>
-    attioRequest(`/lists/${INTAKE_LIST}/entries`, {
+  // Record consent on the person so Dani can filter who to email or text.
+  // Only a "yes" is written, so a later form left unchecked never erases an
+  // earlier opt-in. Needs checkbox attributes email_opt_in and sms_opt_in on
+  // People in Attio; if they are missing, the note above still has the answers.
+  const consent = {};
+  if (intake.emailOptIn) consent.email_opt_in = true;
+  if (intake.smsOptIn) consent.sms_opt_in = true;
+  if (Object.keys(consent).length) {
+    await bestEffort("Saving communication opt-ins", () =>
+      attioRequest(`/objects/people/records/${personId}`, {
+        method: "PATCH",
+        body: { data: { values: consent } },
+      }),
+    );
+  }
+
+  await bestEffort(`Adding to ${form.list}`, () =>
+    attioRequest(`/lists/${form.list}/entries`, {
       method: "PUT",
       body: { data: { parent_record_id: personId, parent_object: "people", entry_values: {} } },
     }),
@@ -158,7 +216,7 @@ async function saveToAttio(intake) {
       method: "POST",
       body: {
         data: {
-          content: `Follow up with ${name} (${preferredChannel}) – website intake`,
+          content: `Follow up with ${name} (${preferredChannel}) – ${form.task}`,
           format: "plaintext",
           deadline_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
           is_completed: false,
@@ -187,8 +245,9 @@ async function sendInquiryAlert(intake, { savedToCrm }) {
 
   const to = process.env.ALERT_EMAIL_TO || user;
   const name = oneLine(intake.name);
+  const form = FORM_TYPES[intake.formType];
   const crmLine = savedToCrm
-    ? "Saved in Attio: the person, a note with these answers, the Intake Pipeline list, and a follow-up task due tomorrow."
+    ? `Saved in Attio: the person, a note with these answers, ${form.listName}, and a follow-up task due tomorrow.`
     : "NOT saved in Attio (it was unavailable). Add this person to Attio by hand.";
 
   try {
@@ -204,9 +263,9 @@ async function sendInquiryAlert(intake, { savedToCrm }) {
       from: { name: "Cancer Coach USA Website", address: user },
       to,
       replyTo: { name, address: intake.email },
-      subject: `New inquiry: ${name}`,
+      subject: `${form.subject}: ${name}`,
       text: [
-        `${name} just submitted the intake form on cancercoachusa.com.`,
+        `${name} just submitted the ${intake.formType === "meetup" ? "meetup registration" : "intake"} form on cancercoachusa.com.`,
         "Reply to this email to answer them directly.",
         "",
         intakeNoteBody(intake),
@@ -238,7 +297,11 @@ module.exports = async function handler(request, response) {
       return;
     }
 
-    const name = clean(payload.name, LIMITS.name);
+    const formType = payload.formType === "meetup" ? "meetup" : "intake";
+    const firstName = clean(payload.firstName, LIMITS.firstName);
+    const lastName = clean(payload.lastName, LIMITS.lastName);
+    const name = formType === "meetup" ? `${firstName} ${lastName}`.trim() : clean(payload.name, LIMITS.name);
+    const attendance = clean(payload.attendance, LIMITS.attendance);
     const email = clean(payload.email, LIMITS.email).toLowerCase();
     const phone = clean(payload.phone, LIMITS.phone);
     const role = clean(payload.role, LIMITS.role);
@@ -250,7 +313,11 @@ module.exports = async function handler(request, response) {
     const pageUrl = clean(payload.pageUrl, 500);
     const consentText = clean(payload.consentText, 1000);
 
-    if (!name || !email || !phone || !preferredChannel || !message) {
+    if (formType === "meetup") {
+      if (!firstName || !lastName || !email || !phone || !role || !attendance || !preferredChannel) {
+        throw badRequest("First name, last name, email, mobile phone, who you are, how you'd like to join, and preferred contact method are required.");
+      }
+    } else if (!name || !email || !phone || !preferredChannel || !message) {
       throw badRequest("Name, email, mobile phone, preferred contact method, and message are required.");
     }
 
@@ -271,7 +338,11 @@ module.exports = async function handler(request, response) {
 
     const submittedAt = new Date().toISOString();
     const intake = {
+      formType,
       name,
+      firstName,
+      lastName,
+      attendance,
       email,
       phone,
       role,
