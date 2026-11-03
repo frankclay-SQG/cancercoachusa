@@ -92,6 +92,26 @@ function renderBlocks(blocks = []) {
   return html.join("");
 }
 
+function renderAuthor(post) {
+  if (!post.author || !post.authorBio) return "";
+
+  const photo = post.authorImage?.asset?.url
+    ? `<img class="author-photo" src="${escapeHtml(post.authorImage.asset.url)}?w=192&h=192&fit=crop" alt="${escapeHtml(post.authorImage.alt || post.author)}">`
+    : `<img class="author-photo author-photo-emblem" src="assets/emblem-purple.png" alt="">`;
+
+  return `
+    <aside class="author-card" aria-label="About the author">
+      ${photo}
+      <div>
+        <p class="eyebrow">About the author</p>
+        <h2>${escapeHtml(post.author)}</h2>
+        <p>${escapeHtml(post.authorBio)}</p>
+        <a class="author-link" href="index.html#contact">Connect with Cancer Coach USA</a>
+      </div>
+    </aside>
+  `;
+}
+
 function renderPost(post) {
   if (!post) {
     blogPost.innerHTML = "<p>No post selected.</p>";
@@ -109,6 +129,7 @@ function renderPost(post) {
     <p class="post-meta">${[formatDate(post.publishedAt), post.author].filter(Boolean).map(escapeHtml).join(" | ")}</p>
     ${post.excerpt ? `<p class="post-excerpt">${escapeHtml(post.excerpt)}</p>` : ""}
     <div class="rich-text">${renderBlocks(post.body)}</div>
+    ${renderAuthor(post)}
   `;
 }
 
