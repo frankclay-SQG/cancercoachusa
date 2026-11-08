@@ -314,19 +314,23 @@ module.exports = async function handler(request, response) {
     const consentText = clean(payload.consentText, 1000);
 
     if (formType === "meetup") {
-      if (!firstName || !lastName || !email || !phone || !role || !attendance || !preferredChannel) {
-        throw badRequest("First name, last name, email, mobile phone, who you are, how you'd like to join, and preferred contact method are required.");
+      if (!firstName || !lastName || !email || !role || !attendance || !preferredChannel) {
+        throw badRequest("First name, last name, email, who you are, how you'd like to join, and preferred contact method are required.");
       }
-    } else if (!name || !email || !phone || !preferredChannel || !message) {
-      throw badRequest("Name, email, mobile phone, preferred contact method, and message are required.");
+    } else if (!name || !email || !preferredChannel || !message) {
+      throw badRequest("Name, email, preferred contact method, and message are required.");
     }
 
     if (!EMAIL_PATTERN.test(email)) {
       throw badRequest("Please enter a valid email address.");
     }
 
-    if (phone.replace(/\D/g, "").length < 10) {
-      throw badRequest("Please enter a valid mobile phone number.");
+    // Phone is only required when the visitor asked to be texted.
+    const wantsSms = smsOptIn || preferredChannel.includes("SMS");
+    if ((wantsSms || phone) && phone.replace(/\D/g, "").length < 10) {
+      throw badRequest(wantsSms
+        ? "Please enter your mobile phone number so we can text you."
+        : "Please enter a valid mobile phone number.");
     }
 
     // Count only well-formed submissions, so visitors fixing a typo aren't blocked.
