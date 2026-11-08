@@ -20,6 +20,7 @@ const PAGES = [
   { path: "/download.html", priority: "0.6", changefreq: "monthly" },
   { path: "/privacy.html", priority: "0.2", changefreq: "yearly" },
   { path: "/terms.html", priority: "0.2", changefreq: "yearly" },
+  { path: "/sms-terms.html", priority: "0.2", changefreq: "yearly" },
 ];
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

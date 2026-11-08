@@ -95,14 +95,20 @@ form?.addEventListener("submit", (event) => {
   const message = String(formData.get("message") || "").trim();
   const website = String(formData.get("website") || "");
 
-  if (!name || !email || !phone || !role || !preferredChannel || !message) {
+  if (!name || !email || !role || !preferredChannel || !message) {
     statusMessage.textContent = "Please complete all required fields before submitting.";
+    return;
+  }
+
+  const wantsSms = smsOptIn || preferredChannel.includes("SMS");
+  if (wantsSms && phone.replace(/\D/g, "").length < 10) {
+    statusMessage.textContent = "Please enter your mobile phone number so we can text you.";
     return;
   }
 
   const consentText = [
     "I agree to receive email updates from Cancer Coach USA.",
-    "I agree to receive text messages from Cancer Coach USA. Message and data rates may apply. Reply STOP to opt out.",
+    "I agree to receive text messages from Cancer Coach USA about my requests, appointments, and meetup updates. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of any purchase. See our SMS Terms (cancercoachusa.com/sms-terms.html) and Privacy Policy (cancercoachusa.com/privacy.html).",
   ].join(" ");
 
   statusMessage.textContent = "Sending your request to Cancer Coach USA.";
