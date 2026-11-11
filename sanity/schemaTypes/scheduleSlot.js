@@ -45,7 +45,7 @@ export default {
       name: "bookingUrl",
       title: "Booking URL",
       type: "url",
-      description: "HubSpot meeting link, Google Calendar appointment link, or another scheduling URL.",
+      description: "Calendly, Google Calendar appointment link, or another scheduling URL.",
     },
     {
       name: "isAvailable",

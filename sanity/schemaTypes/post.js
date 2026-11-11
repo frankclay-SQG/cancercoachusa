@@ -26,6 +26,7 @@ export default {
       name: "publishedAt",
       title: "Published at",
       type: "datetime",
+      description: "Set a future date and time to schedule this post. It stays hidden on the site until then.",
       validation: (Rule) => Rule.required(),
     },
     {
