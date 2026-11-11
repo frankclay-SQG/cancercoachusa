@@ -18,6 +18,7 @@ const PAGES = [
   { path: "/meetings.html", priority: "0.6", changefreq: "monthly" },
   { path: "/meetup.html", priority: "0.6", changefreq: "monthly" },
   { path: "/download.html", priority: "0.6", changefreq: "monthly" },
+  { path: "/faq.html", priority: "0.7", changefreq: "monthly" },
   { path: "/privacy.html", priority: "0.2", changefreq: "yearly" },
   { path: "/terms.html", priority: "0.2", changefreq: "yearly" },
   { path: "/sms-terms.html", priority: "0.2", changefreq: "yearly" },
