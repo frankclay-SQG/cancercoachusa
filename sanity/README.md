@@ -48,5 +48,16 @@ To schedule a post, set "Published at" to a future date and time. The public
 blog API only returns posts where `publishedAt <= now()`, so scheduled posts
 stay hidden until that time.
 
-The hosted Studio's schema is managed separately from the files in
-`sanity/schemaTypes`; keep the two in sync when fields change.
+### Studio code and deploys
+
+The Studio is defined in this folder (`sanity.config.js`, `sanity.cli.js`,
+`schemaTypes/`). Sign-in is limited to Google (`auth.providers` in
+`sanity.config.js`); access is still controlled by project membership.
+
+Any change under `sanity/` merged to `main` redeploys the Studio through the
+GitHub Action `.github/workflows/deploy-studio.yml`. It needs the repository
+secret `SANITY_AUTH_TOKEN`: a Sanity API token with the "Deploy Studio"
+permission for project `s3bcwpk0`. To deploy by hand instead, run
+`npm install` and `npx sanity deploy` in this folder.
+
+Run `npm run dev` in this folder to try the Studio locally.

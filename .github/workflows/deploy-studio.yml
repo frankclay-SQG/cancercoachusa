@@ -1,0 +1,27 @@
+# Deploys the Sanity Studio (https://cancercoachusa.sanity.studio/) whenever
+# anything under sanity/ changes on main, or when run by hand from the Actions tab.
+# Needs the repository secret SANITY_AUTH_TOKEN: a Sanity API token with the
+# "Deploy Studio" permission for project s3bcwpk0.
+name: Deploy Sanity Studio
+
+on:
+  push:
+    branches: [main]
+    paths: ["sanity/**", ".github/workflows/deploy-studio.yml"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sanity
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npx sanity deploy --yes
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
