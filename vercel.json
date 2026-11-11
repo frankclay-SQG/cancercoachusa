@@ -1,9 +1,31 @@
 {
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    }
   ],
   "redirects": [
-    { "source": "/meetup", "destination": "/meetup.html#register", "permanent": false },
-    { "source": "/register", "destination": "/meetup.html#register", "permanent": false }
+    {
+      "source": "/meetup",
+      "destination": "/meetup.html#register",
+      "permanent": false
+    },
+    {
+      "source": "/register",
+      "destination": "/meetup.html#register",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/social/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
   ]
 }
