@@ -2215,34 +2215,34 @@ textarea:focus {
 .book-release-popup {
   position: fixed;
   z-index: 100;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 24px;
+  bottom: clamp(16px, 3vw, 28px);
+  left: clamp(16px, 3vw, 28px);
+  width: min(460px, calc(100vw - 32px));
 }
 
 .book-release-popup[hidden] {
   display: none;
 }
 
-.book-release-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(22, 42, 67, 0.7);
-  backdrop-filter: blur(7px);
-}
-
 .book-release-card {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(190px, 0.78fr) minmax(280px, 1.22fr);
-  width: min(760px, 100%);
+  grid-template-columns: 136px 1fr;
+  width: 100%;
   max-height: calc(100svh - 48px);
   overflow: auto;
   background: var(--paper);
   border: 1px solid rgba(var(--sky-rgb), 0.38);
   border-radius: 18px;
-  box-shadow: 0 28px 90px rgba(14, 41, 73, 0.34);
+  box-shadow: 0 18px 50px rgba(14, 41, 73, 0.3);
+  animation: book-popup-in 0.35s ease-out;
+}
+
+@keyframes book-popup-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 
 .book-release-card:focus {
@@ -2252,7 +2252,7 @@ textarea:focus {
 .book-release-cover {
   width: 100%;
   height: 100%;
-  min-height: 420px;
+  min-height: 0;
   object-fit: cover;
   object-position: center;
   border-radius: 17px 0 0 17px;
@@ -2262,19 +2262,23 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(32px, 5vw, 56px);
+  padding: 22px 48px 22px 22px;
+}
+
+.book-release-copy .eyebrow {
+  margin-bottom: 6px;
 }
 
 .book-release-copy h2 {
-  margin-bottom: 18px;
-  font-size: clamp(2.2rem, 5vw, 4.2rem);
-  line-height: 0.98;
+  margin-bottom: 10px;
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  line-height: 1.05;
 }
 
 .book-release-copy > p:not(.eyebrow) {
-  margin-bottom: 28px;
+  margin-bottom: 16px;
   color: var(--graphite);
-  font-size: 1.05rem;
+  font-size: 0.92rem;
 }
 
 .book-release-button {
@@ -2284,20 +2288,20 @@ textarea:focus {
 .book-release-close {
   position: absolute;
   z-index: 1;
-  top: 14px;
-  right: 14px;
+  top: 10px;
+  right: 10px;
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   place-items: center;
   color: var(--charcoal);
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(var(--plum-rgb), 0.18);
   border-radius: 50%;
-  box-shadow: 0 8px 22px rgba(var(--plum-rgb), 0.15);
+  box-shadow: 0 6px 16px rgba(var(--plum-rgb), 0.15);
   font: inherit;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -2308,8 +2312,10 @@ textarea:focus {
   background: var(--brand-royal);
 }
 
-body.book-popup-open {
-  overflow: hidden;
+@media (prefers-reduced-motion: reduce) {
+  .book-release-card {
+    animation: none;
+  }
 }
 
 .site-footer {
@@ -2678,30 +2684,22 @@ body.book-popup-open {
   }
 
   .book-release-popup {
-    align-items: start;
-    padding: 14px;
-    overflow-y: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
   }
 
   .book-release-card {
-    grid-template-columns: 1fr;
-    max-height: none;
-  }
-
-  .book-release-cover {
-    width: 100%;
-    height: min(46svh, 390px);
-    min-height: 0;
-    object-position: center 20%;
-    border-radius: 17px 17px 0 0;
+    grid-template-columns: 96px 1fr;
   }
 
   .book-release-copy {
-    padding: 28px 24px 30px;
+    padding: 16px 42px 16px 16px;
   }
 
-  .book-release-copy h2 {
-    font-size: clamp(2rem, 11vw, 3rem);
+  .book-release-copy > p:not(.eyebrow) {
+    display: none;
   }
 
   .book-release-button {

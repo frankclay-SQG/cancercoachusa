@@ -1,23 +1,20 @@
 const form = document.querySelector("#contact-form");
 const statusMessage = document.querySelector("#form-status");
 const bookReleasePopup = document.querySelector("#book-release-popup");
-const bookReleaseCard = bookReleasePopup?.querySelector(".book-release-card");
 let bookPopupPreviousFocus = null;
 const formLoadedAt = Date.now();
 
 function closeBookReleasePopup() {
   if (!bookReleasePopup || bookReleasePopup.hidden) return;
+  const focusWasInside = bookReleasePopup.contains(document.activeElement);
   bookReleasePopup.hidden = true;
-  document.body.classList.remove("book-popup-open");
-  bookPopupPreviousFocus?.focus();
+  if (focusWasInside) bookPopupPreviousFocus?.focus();
 }
 
 function openBookReleasePopup() {
   if (!bookReleasePopup) return;
   bookPopupPreviousFocus = document.activeElement;
   bookReleasePopup.hidden = false;
-  document.body.classList.add("book-popup-open");
-  bookReleaseCard?.focus();
 }
 
 bookReleasePopup?.addEventListener("click", (event) => {
@@ -29,25 +26,6 @@ bookReleasePopup?.addEventListener("click", (event) => {
 bookReleasePopup?.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeBookReleasePopup();
-    return;
-  }
-
-  if (event.key !== "Tab") return;
-  const focusable = [
-    ...bookReleasePopup.querySelectorAll(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    ),
-  ];
-  if (!focusable.length) return;
-
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
   }
 });
 
