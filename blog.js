@@ -1,6 +1,9 @@
 const blogList = document.querySelector("#blog-list");
 const blogPost = document.querySelector("#blog-post");
 const params = new URLSearchParams(window.location.search);
+// Posts live at /blog/<slug>; older links used /blog.html?slug=<slug>.
+const pathSlug = (window.location.pathname.match(/^\/blog\/([a-z0-9-]+)\/?$/) || [])[1];
+const ssrSlug = blogPost.dataset.ssrSlug || "";
 let posts = [];
 
 function escapeHtml(value) {
@@ -133,6 +136,27 @@ function renderPost(post) {
   `;
 }
 
+function postPath(slug) {
+  return `/blog/${encodeURIComponent(slug)}`;
+}
+
+function markCurrent(slug) {
+  blogList.querySelectorAll(".blog-list-item").forEach((item) => {
+    if (item.dataset.slug === slug) item.setAttribute("aria-current", "page");
+    else item.removeAttribute("aria-current");
+  });
+}
+
+function showPost(slug) {
+  const selected = posts.find((post) => post.slug === slug);
+  if (!selected) return false;
+  renderPost(selected);
+  document.title = `${selected.title} | Cancer Coach USA`;
+  document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://www.cancercoachusa.com${postPath(slug)}`);
+  markCurrent(slug);
+  return true;
+}
+
 function renderList() {
   if (!posts.length) {
     blogList.innerHTML = "<p>No published posts are available yet.</p>";
@@ -140,27 +164,44 @@ function renderList() {
     return;
   }
 
+  // Real links, so search engines can follow them to each post's own page.
   blogList.innerHTML = posts
     .map((post) => `
-      <button class="blog-list-item" type="button" data-slug="${escapeHtml(post.slug)}">
+      <a class="blog-list-item" href="${postPath(post.slug)}" data-slug="${escapeHtml(post.slug)}">
         <span>${escapeHtml(post.category || "Article")}</span>
         <strong>${escapeHtml(post.title)}</strong>
         <small>${escapeHtml(formatDate(post.publishedAt))}</small>
-      </button>
+      </a>
     `)
     .join("");
 
-  blogList.querySelectorAll("button").forEach((button) => {
-    button.addEventListener("click", () => {
-      const selected = posts.find((post) => post.slug === button.dataset.slug);
-      history.replaceState(null, "", `blog.html?slug=${encodeURIComponent(button.dataset.slug)}`);
-      renderPost(selected);
+  blogList.querySelectorAll(".blog-list-item").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+      event.preventDefault();
+      if (showPost(link.dataset.slug)) {
+        history.pushState({ slug: link.dataset.slug }, "", postPath(link.dataset.slug));
+        blogPost.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     });
   });
 
-  const selectedSlug = params.get("slug");
-  renderPost(posts.find((post) => post.slug === selectedSlug) || posts[0]);
+  const selectedSlug = ssrSlug || pathSlug || params.get("slug");
+  if (ssrSlug) {
+    // The server already rendered this post; just highlight it in the list.
+    markCurrent(ssrSlug);
+    return;
+  }
+  const selected = posts.find((post) => post.slug === selectedSlug) || posts[0];
+  renderPost(selected);
+  markCurrent(selected.slug);
 }
+
+window.addEventListener("popstate", () => {
+  const slug = (window.location.pathname.match(/^\/blog\/([a-z0-9-]+)\/?$/) || [])[1];
+  if (slug) showPost(slug);
+  else if (posts[0]) showPost(posts[0].slug);
+});
 
 fetch("/api/blog-posts")
   .then(async (response) => {
@@ -170,6 +211,8 @@ fetch("/api/blog-posts")
     renderList();
   })
   .catch((error) => {
+    // On a server-rendered post page the article and list are already there.
+    if (ssrSlug) return;
     blogList.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
     blogPost.innerHTML = "<p>Confirm the Sanity environment variables are set on the Vercel project.</p>";
   });

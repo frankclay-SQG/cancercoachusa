@@ -84,7 +84,7 @@ module.exports = async function handler(request, response) {
   for (const post of posts) {
     entries.push(
       urlEntry({
-        loc: `${SITE}/blog.html?slug=${post.slug}`,
+        loc: `${SITE}/blog/${post.slug}`,
         lastmod: day(post._updatedAt) || day(post.publishedAt),
         changefreq: "monthly",
         priority: "0.7",

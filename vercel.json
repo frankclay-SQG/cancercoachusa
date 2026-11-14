@@ -3,8 +3,17 @@
     {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/api/blog-post-page?slug=:slug"
     }
   ],
+  "functions": {
+    "api/blog-post-page.js": {
+      "includeFiles": "{blog.html,404.html}"
+    }
+  },
   "redirects": [
     {
       "source": "/meetup",

@@ -221,7 +221,8 @@ p {
   margin-top: 0;
 }
 
-h1 {
+h1,
+.page-hero-title {
   margin-bottom: 18px;
   color: var(--charcoal);
   max-width: 10.5ch;
@@ -595,8 +596,14 @@ h3 {
   max-width: 760px;
 }
 
-.page-hero h1 {
+.page-hero h1,
+.page-hero .page-hero-title {
   max-width: 8ch;
+}
+
+/* Post pages use a <p> for the "Blog" banner so the post title is the page's only h1. */
+.page-hero-title {
+  font-weight: 700;
 }
 
 .page-hero-copy {
@@ -798,7 +805,12 @@ h3 {
   border-radius: var(--radius);
   font: inherit;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
+}
+
+.blog-list-item[aria-current="page"] {
+  border-color: rgba(var(--plum-rgb), 0.5);
 }
 
 .blog-list-item span,
@@ -2536,7 +2548,8 @@ textarea:focus {
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.72));
   }
 
-  h1 {
+  h1,
+  .page-hero-title {
     max-width: 9.8ch;
     font-size: clamp(2.95rem, 11.5vw, 4.35rem);
     line-height: 0.92;
@@ -2746,7 +2759,8 @@ textarea:focus {
     display: none;
   }
 
-  .page-hero h1 {
+  .page-hero h1,
+  .page-hero .page-hero-title {
     max-width: none;
     font-size: 34pt;
     line-height: 1;

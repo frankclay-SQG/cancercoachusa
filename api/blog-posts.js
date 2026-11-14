@@ -1,35 +1,6 @@
 const { handleError, sanityQuery, sendJson } = require("./lib/sanity");
 
-const POST_FIELDS = `{
-  _id,
-  title,
-  "slug": slug.current,
-  excerpt,
-  publishedAt,
-  category,
-  "author": coalesce(author->name, *[_type == "author"] | order(_createdAt asc)[0].name),
-  "authorBio": coalesce(author->bio, *[_type == "author"] | order(_createdAt asc)[0].bio),
-  "authorImage": coalesce(author->image, *[_type == "author"] | order(_createdAt asc)[0].image){
-    alt,
-    asset->{url}
-  },
-  mainImage{
-    alt,
-    asset->{url, metadata{dimensions}}
-  },
-  body[]{
-    ...,
-    _type == "image" => {
-      ...,
-      alt,
-      asset->{url, metadata{dimensions}}
-    },
-    _type == "file" => {
-      ...,
-      asset->{url, originalFilename, mimeType, size}
-    }
-  }
-}`;
+const { POST_FIELDS } = require("./lib/posts");
 
 module.exports = async function handler(request, response) {
   if (request.method !== "GET") {
